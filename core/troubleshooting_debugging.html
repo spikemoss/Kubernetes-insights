@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Troubleshooting & Debugging | Common Issues & Solutions</title>
+    <meta name="description" content="Complete guide to troubleshooting Kubernetes issues, debugging techniques, logging, monitoring, and performance optimization">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,96C1248,75,1344,53,1392,42.7L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.3;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .intro-section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--danger);
+        }
+
+        .intro-section h2 {
+            font-size: 1.875rem;
+            color: var(--danger);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .nav-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--danger);
+        }
+
+        .nav-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .nav-card h3 {
+            font-size: 1.3rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .code-block {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 1rem 0;
+        }
+
+        .troubleshooting-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #ffffff 100%);
+            border-left: 4px solid var(--warning);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .troubleshooting-box h4 {
+            color: var(--warning);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .solution-box {
+            background: linear-gradient(135deg, #dcfce7 0%, #ffffff 100%);
+            border-left: 4px solid var(--success);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 0.5rem 0 1.5rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .solution-box h4 {
+            color: var(--success);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        footer a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="/cloud-native-blogs/index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+            <h1><i class="fas fa-exclamation-triangle"></i> Troubleshooting & Debugging</h1>
+            <p>Common Issues, Solutions, Logging, and Performance Optimization</p>
+        </div>
+    </header>
+    
+    <main>
+        <section class="intro-section">
+            <h2><i class="fas fa-stethoscope"></i> Debugging Kubernetes Issues</h2>
+            <p>
+                Issues in Kubernetes can be complex and multi-layered. This guide provides systematic approaches to troubleshooting, 
+                common problems and their solutions, debugging techniques, and performance optimization strategies.
+            </p>
+        </section>
+
+        <!-- Debugging Tools & Commands -->
+        <div class="section-header">
+            <h2>Essential Debugging Tools & Commands</h2>
+            <p>Master these commands for effective troubleshooting</p>
+        </div>
+
+        <div class="nav-grid">
+            <div class="nav-card">
+                <h3><i class="fas fa-search" style="color: var(--danger);"></i> Pod Status & Information</h3>
+                <div class="code-block" style="font-size: 0.85rem;">
+# Get pod status
+kubectl get pods -n default
+
+# Detailed pod info
+kubectl describe pod <pod-name>
+
+# View pod events
+kubectl get events --sort-by='.lastTimestamp'
+
+# Check pod logs
+kubectl logs <pod-name>
+kubectl logs -f <pod-name>  # Follow logs</div>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-terminal" style="color: var(--danger);"></i> Exec & Port Forward</h3>
+                <div class="code-block" style="font-size: 0.85rem;">
+# Execute commands in pod
+kubectl exec -it <pod> -- /bin/sh
+
+# Port forwarding
+kubectl port-forward <pod> 8080:8080
+
+# Copy files
+kubectl cp <pod>:/path/to/file ./local/path</div>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-chart-line" style="color: var(--danger);"></i> Resource & Node Info</h3>
+                <div class="code-block" style="font-size: 0.85rem;">
+# Node status
+kubectl get nodes
+kubectl describe node <node-name>
+
+# Resource usage
+kubectl top nodes
+kubectl top pods
+
+# Node capacity
+kubectl describe nodes | grep Capacity -A 5</div>
+            </div>
+        </div>
+
+        <!-- Common Issues & Solutions -->
+        <div class="section-header">
+            <h2>Common Issues & Solutions</h2>
+            <p>Quick reference for typical problems</p>
+        </div>
+
+        <div class="troubleshooting-box">
+            <h4><i class="fas fa-exclamation-triangle"></i> Issue: Pod Stuck in Pending</h4>
+            <p>Pod is created but not assigned to any node.</p>
+        </div>
+        <div class="solution-box">
+            <h4><i class="fas fa-lightbulb"></i> Solution:</h4>
+            <div class="code-block" style="font-size: 0.85rem;">
+# Check node resources
+kubectl top nodes
+
+# Check for node selector issues
+kubectl describe pod <pod-name>
+
+# Check resource quota
+kubectl describe quota -n <namespace></div>
+            <p style="margin-top: 0.5rem;"><strong>Common causes:</strong> Insufficient cluster resources, node affinity issues, or resource quotas exceeded.</p>
+        </div>
+
+        <div class="troubleshooting-box">
+            <h4><i class="fas fa-exclamation-triangle"></i> Issue: CrashLoopBackOff Status</h4>
+            <p>Container starts, crashes, and restarts continuously.</p>
+        </div>
+        <div class="solution-box">
+            <h4><i class="fas fa-lightbulb"></i> Solution:</h4>
+            <div class="code-block" style="font-size: 0.85rem;">
+# Check logs
+kubectl logs <pod-name> --previous
+
+# Detailed event information
+kubectl describe pod <pod-name>
+
+# Check liveness probe settings
+kubectl get pod <pod-name> -o yaml</div>
+            <p style="margin-top: 0.5rem;"><strong>Common causes:</strong> Application errors, misconfigured health probes, missing dependencies, or failed initialization.</p>
+        </div>
+
+        <div class="troubleshooting-box">
+            <h4><i class="fas fa-exclamation-triangle"></i> Issue: ImagePullBackOff</h4>
+            <p>Kubernetes cannot pull the container image.</p>
+        </div>
+        <div class="solution-box">
+            <h4><i class="fas fa-lightbulb"></i> Solution:</h4>
+            <div class="code-block" style="font-size: 0.85rem;">
+# Verify image name and tag
+kubectl describe pod <pod-name>
+
+# Check credentials
+kubectl get secrets
+
+# Create image pull secret
+kubectl create secret docker-registry myregistrykey \
+  --docker-server=<registry> \
+  --docker-username=<user> \
+  --docker-password=<password></div>
+            <p style="margin-top: 0.5rem;"><strong>Common causes:</strong> Wrong image name, non-existent tag, authentication issues, or private registry access problems.</p>
+        </div>
+
+        <!-- Performance Optimization -->
+        <div class="section-header">
+            <h2>Performance Optimization & Monitoring</h2>
+            <p>Improve cluster and application performance</p>
+        </div>
+
+        <div class="nav-grid">
+            <div class="nav-card">
+                <h3><i class="fas fa-tachometer-alt" style="color: var(--danger);"></i> Resource Optimization</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> Right-size CPU/memory requests based on actual usage</li>
+                    <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> Use Horizontal Pod Autoscaling (HPA)</li>
+                    <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> Implement pod disruption budgets</li>
+                    <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> Use node affinity for optimal placement</li>
+                </ul>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-eye" style="color: var(--danger);"></i> Monitoring Tools</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> Prometheus - Metrics collection</li>
+                    <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> Grafana - Visualization</li>
+                    <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> ELK Stack - Logging</li>
+                    <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> Jaeger - Distributed tracing</li>
+                </ul>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-chart-bar" style="color: var(--danger);"></i> Key Metrics to Monitor</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> CPU and memory usage</li>
+                    <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> Pod restart counts</li>
+                    <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> Network I/O throughput</li>
+                    <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> API server response times</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Logging Best Practices -->
+        <div class="section-header">
+            <h2>Logging & Log Analysis</h2>
+            <p>Effective logging strategies</p>
+        </div>
+
+        <div class="nav-card intro-section">
+            <h3><i class="fas fa-file-alt" style="color: var(--danger);"></i> Logging Best Practices</h3>
+            
+            <div class="code-block">
+# View pod logs
+kubectl logs <pod-name>
+
+# Tail logs in real-time
+kubectl logs -f <pod-name>
+
+# View logs for previous crashed container
+kubectl logs --previous <pod-name>
+
+# Get logs from all containers in a pod
+kubectl logs <pod-name> --all-containers=true
+
+# Stream logs from multiple pods
+kubectl logs -f -l app=myapp --max-log-requests=10</div>
+
+            <p style="margin-top: 1.5rem;"><strong>Log aggregation setup:</strong></p>
+            <ul style="list-style: none; padding: 1rem 0;">
+                <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> Use structured logging (JSON format)</li>
+                <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> Include correlation IDs for tracing</li>
+                <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> Forward logs to centralized system (ELK, Splunk)</li>
+                <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> Set retention policies</li>
+                <li style="padding: 0.5rem 0; display: flex; gap: 0.5rem;"><i class="fas fa-check" style="color: var(--success);"></i> Create alerts for errors and warnings</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-bug"></i> Effective troubleshooting skills save time and money!</p>
+        <p>&copy; 2025 Kubernetes Insights by Sharmaji Cloud Wale | 
+            <a href="https://github.com/ashish02510gh" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+        </p>
+    </footer>
+</body>
+</html>
+

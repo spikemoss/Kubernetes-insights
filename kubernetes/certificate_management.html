@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Management | Kubernetes Security Guide</title>
+    <meta name="description" content="Complete guide to managing TLS certificates, PKI infrastructure, certificate rotation, and secure communication in Kubernetes clusters">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,96C1248,75,1344,53,1392,42.7L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.3;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .intro-section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .intro-section h2 {
+            font-size: 1.875rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .intro-section h2 i {
+            color: var(--accent);
+        }
+
+        .intro-section h3 {
+            font-size: 1.375rem;
+            color: var(--primary);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .intro-section p {
+            color: var(--text-gray);
+            font-size: 1rem;
+            line-height: 1.75;
+            margin-bottom: 1rem;
+        }
+
+        .intro-section ul, .intro-section ol {
+            color: var(--text-gray);
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .intro-section li {
+            margin-bottom: 0.5rem;
+            line-height: 1.75;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            border-left: 4px solid var(--accent);
+        }
+
+        /* Info Box */
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .info-box strong {
+            color: var(--primary);
+        }
+
+        /* Warning Box */
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid var(--warning);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box strong {
+            color: var(--warning);
+        }
+
+        /* Success Box */
+        .success-box {
+            background: #dcfce7;
+            border-left: 4px solid var(--success);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .success-box strong {
+            color: var(--success);
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: var(--bg-card);
+        }
+
+        table th {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        table tr:hover {
+            background: var(--bg-light);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        footer p {
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        footer a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            header p {
+                font-size: 1rem;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+
+            .intro-section {
+                padding: 1.5rem;
+            }
+
+            .code-block {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <a href="/cloud-native-blogs/kubernetes/k8s_security_index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Security Guide
+        </a>
+        <h1><i class="fas fa-certificate"></i> Certificate Management</h1>
+        <p>TLS, PKI, Rotation, and Secure Communication in Kubernetes</p>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Introduction -->
+        <section class="intro-section">
+            <h2><i class="fas fa-lock"></i> Certificate Management Overview</h2>
+            <p>
+                Certificate management is critical for securing communication in Kubernetes clusters. Every component 
+                in Kubernetes—from the API server to kubelets to services—uses TLS certificates for authentication and 
+                encryption. Proper certificate management ensures secure communication, prevents unauthorized access, and 
+                maintains cluster integrity.
+            </p>
+
+            <div class="info-box">
+                <strong>💡 Key Insight:</strong> Kubernetes clusters require hundreds of certificates for inter-component 
+                communication. Mismanagement can lead to cluster-wide outages or security breaches.
+            </div>
+        </section>
+
+        <!-- Why Certificate Management Matters -->
+        <section class="intro-section">
+            <h2><i class="fas fa-exclamation-triangle"></i> Why Certificate Management Matters</h2>
+            <ul>
+                <li><strong>Authentication:</strong> Verify identity of cluster components and users</li>
+                <li><strong>Encryption:</strong> Protect data in transit between cluster components</li>
+                <li><strong>Compliance:</strong> Meet regulatory requirements (PCI-DSS, HIPAA, etc.)</li>
+                <li><strong>Operational Continuity:</strong> Prevent service disruptions from expired certificates</li>
+                <li><strong>Security:</strong> Prevent man-in-the-middle (MITM) attacks</li>
+                <li><strong>Audit Trail:</strong> Track certificate creation, usage, and rotation</li>
+            </ul>
+        </section>
+
+        <!-- Kubernetes Certificate Types -->
+        <section class="intro-section">
+            <h2><i class="fas fa-certificate"></i> Kubernetes Certificate Types</h2>
+            
+            <h3>1. Client Certificates</h3>
+            <p>Used for authentication between components and the API server:</p>
+            <ul>
+                <li><strong>API Server Certificate:</strong> Serves the Kubernetes API</li>
+                <li><strong>Kubelet Client Certificates:</strong> Kubelet authenticates to the API server</li>
+                <li><strong>API Server Client Certificates:</strong> API server communicates with kubelets</li>
+                <li><strong>Controller Manager Certificates:</strong> Controller manager authentication</li>
+                <li><strong>Scheduler Certificates:</strong> Scheduler authentication</li>
+            </ul>
+
+            <h3>2. Service Account Tokens</h3>
+            <p>Automatically generated and mounted in pods for authentication:</p>
+            <ul>
+                <li>Stored in secrets in the cluster</li>
+                <li>Used by applications to authenticate to the API server</li>
+                <li>Should be rotated regularly</li>
+            </ul>
+
+            <h3>3. etcd Certificates</h3>
+            <p>Secure communication between etcd cluster members and clients:</p>
+            <ul>
+                <li>Peer certificates for etcd cluster communication</li>
+                <li>Server certificates for client connections</li>
+                <li>Client certificates for API server access</li>
+            </ul>
+
+            <h3>4. User/External Certificates</h3>
+            <p>For external users accessing the cluster:</p>
+            <ul>
+                <li>Client certificates for kubectl</li>
+                <li>External service authentication</li>
+            </ul>
+        </section>
+
+        <!-- Certificate Lifecycle -->
+        <section class="intro-section">
+            <h2><i class="fas fa-circle-notch"></i> Certificate Lifecycle Management</h2>
+
+            <h3>Generation</h3>
+            <p>Certificates are generated during cluster initialization using kubeadm or other tools:</p>
+            <div class="code-block">
+# Check existing certificates
+sudo kubeadm certs check-expiration
+
+# Generate new certificates
+sudo kubeadm certs renew all
+            </div>
+
+            <h3>Validation</h3>
+            <p>Regular validation ensures certificates are valid and not expired:</p>
+            <ul>
+                <li>Check certificate expiration dates</li>
+                <li>Verify certificate issuer and chain</li>
+                <li>Validate certificate purpose</li>
+            </ul>
+
+            <div class="code-block">
+# View certificate details
+openssl x509 -in /etc/kubernetes/pki/apiserver.crt -text -noout
+
+# Check expiration
+openssl x509 -in /etc/kubernetes/pki/apiserver.crt -noout -dates
+            </div>
+
+            <h3>Rotation</h3>
+            <p>Certificates must be rotated before expiration (typically yearly for kubeadm):</p>
+            <ul>
+                <li>Manual rotation for static cluster components</li>
+                <li>Automated rotation for workload certificates (using cert-manager)</li>
+                <li>Zero-downtime rotation strategies</li>
+            </ul>
+
+            <h3>Revocation</h3>
+            <p>Compromised certificates should be revoked immediately:</p>
+            <ul>
+                <li>Update API server to reject revoked certificates</li>
+                <li>Regenerate all dependent certificates</li>
+                <li>Update all cluster components</li>
+            </ul>
+        </section>
+
+        <!-- Certificate Management Tools -->
+        <section class="intro-section">
+            <h2><i class="fas fa-tools"></i> Certificate Management Tools</h2>
+
+            <h3>Cert-Manager</h3>
+            <p>Industry standard for managing certificates in Kubernetes:</p>
+            <ul>
+                <li>Automatic certificate generation and renewal</li>
+                <li>Support for multiple CA providers (Let's Encrypt, Vault, etc.)</li>
+                <li>Automatic secret creation and updates</li>
+                <li>Certificate monitoring and alerting</li>
+            </ul>
+
+            <div class="code-block">
+# Install cert-manager
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
+
+# Create certificate resource
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tls-cert
+spec:
+  secretName: tls-secret
+  issuerRef:
+    name: letsencrypt-prod
+  dnsNames:
+  - example.com
+            </div>
+
+            <h3>Vault</h3>
+            <p>Secure certificate and secret storage:</p>
+            <ul>
+                <li>Centralized PKI management</li>
+                <li>Dynamic certificate generation</li>
+                <li>Short-lived credentials</li>
+            </ul>
+
+            <h3>External Certificate Authorities</h3>
+            <ul>
+                <li>Integration with enterprise CAs</li>
+                <li>Let's Encrypt for public certificates</li>
+                <li>AWS Certificate Manager</li>
+                <li>Azure Key Vault</li>
+            </ul>
+        </section>
+
+        <!-- Best Practices -->
+        <section class="intro-section">
+            <h2><i class="fas fa-check-circle"></i> Certificate Management Best Practices</h2>
+
+            <table>
+                <tr>
+                    <th>Practice</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><strong>Automated Rotation</strong></td>
+                    <td>Use cert-manager or similar tools to automate rotation before expiration</td>
+                </tr>
+                <tr>
+                    <td><strong>Regular Monitoring</strong></td>
+                    <td>Monitor certificate expiration dates and set up alerts (30, 7, 1 days before expiry)</td>
+                </tr>
+                <tr>
+                    <td><strong>Secure Storage</strong></td>
+                    <td>Store private keys in secure locations, encrypt at rest, limit access</td>
+                </tr>
+                <tr>
+                    <td><strong>Certificate Pinning</strong></td>
+                    <td>Pin certificates for critical connections to prevent MITM attacks</td>
+                </tr>
+                <tr>
+                    <td><strong>Strong Key Length</strong></td>
+                    <td>Use 2048-bit RSA or 256-bit ECDSA keys minimum</td>
+                </tr>
+                <tr>
+                    <td><strong>Short TTL</strong></td>
+                    <td>Use shorter TTLs for certificates to reduce blast radius of compromise</td>
+                </tr>
+                <tr>
+                    <td><strong>Regular Audits</strong></td>
+                    <td>Audit certificate inventory, validity, and permissions regularly</td>
+                </tr>
+                <tr>
+                    <td><strong>Disaster Recovery</strong></td>
+                    <td>Maintain backups of CA certificates and private keys in secure vaults</td>
+                </tr>
+            </table>
+
+            <div class="warning-box">
+                <strong>⚠️ Warning:</strong> Never commit private keys to version control. Use secret management 
+                tools and follow least privilege principles.
+            </div>
+        </section>
+
+        <!-- Implementation Guide -->
+        <section class="intro-section">
+            <h2><i class="fas fa-book"></i> Implementation Steps</h2>
+
+            <h3>Step 1: Audit Current Certificates</h3>
+            <div class="code-block">
+# Check all cluster certificates
+kubeadm certs check-expiration
+
+# Check component certificates individually
+openssl x509 -in /etc/kubernetes/pki/apiserver.crt -noout -dates
+openssl x509 -in /etc/kubernetes/pki/ca.crt -noout -dates
+            </div>
+
+            <h3>Step 2: Set Up Certificate Monitoring</h3>
+            <ul>
+                <li>Install monitoring/alerting tools (Prometheus, Alertmanager)</li>
+                <li>Create alerts for certificates expiring in 30, 7, and 1 day</li>
+                <li>Integrate with incident management systems</li>
+            </ul>
+
+            <h3>Step 3: Implement Automated Rotation</h3>
+            <div class="code-block">
+# Enable automatic certificate rotation in kubeadm
+kubeadm certs renew all --schedule 30d
+
+# Or use cert-manager for workload certificates
+kubectl apply -f cert-manager-issuer.yaml
+            </div>
+
+            <h3>Step 4: Regular Testing</h3>
+            <ul>
+                <li>Test certificate rotation in staging environment</li>
+                <li>Verify zero-downtime rotation</li>
+                <li>Document rotation procedures</li>
+            </ul>
+        </section>
+
+        <!-- Common Issues -->
+        <section class="intro-section">
+            <h2><i class="fas fa-bug"></i> Common Certificate Issues & Solutions</h2>
+
+            <h3>Certificate Expired</h3>
+            <p><strong>Symptom:</strong> API server returns certificate validation errors</p>
+            <p><strong>Solution:</strong> Renew certificates immediately using kubeadm certs renew all</p>
+
+            <h3>Certificate Authority Not Trusted</h3>
+            <p><strong>Symptom:</strong> kubectl commands fail with certificate validation errors</p>
+            <p><strong>Solution:</strong> Verify CA certificate configuration in kubeconfig</p>
+
+            <h3>Service Certificate Mismatch</h3>
+            <p><strong>Symptom:</strong> Services fail to establish TLS connections</p>
+            <p><strong>Solution:</strong> Verify certificate CN/SAN matches service DNS names</p>
+
+            <h3>Unscheduled Pod Due to Certificate Issues</h3>
+            <p><strong>Symptom:</strong> Pods stuck in pending state</p>
+            <p><strong>Solution:</strong> Check kubelet certificates and API server connectivity</p>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p><i class="fas fa-heart"></i> Built with passion for the Cloud-Native community</p>
+        <p>&copy; 2025 Kubernetes Insights by Sharmaji Cloud Wale | 
+            <a href="https://github.com/ashish02510gh" target="_blank"><i class="fab fa-github"></i> GitHub</a> | 
+            <a href="https://www.linkedin.com/in/ashish02510/" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+        </p>
+    </footer>
+</body>
+</html>

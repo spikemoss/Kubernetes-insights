@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supply Chain Security | Kubernetes Security</title>
+    <meta name="description" content="Container supply chain security: image signing, SBOM, Sigstore, artifact verification, and CI/CD pipeline hardening">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root { --primary: #1e40af; --primary-light: #3b82f6; --accent: #06b6d4; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --bg-light: #f8fafc; --bg-card: #ffffff; --text-dark: #0f172a; --text-gray: #64748b; --border: #e2e8f0; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1); --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%); color: var(--text-dark); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
+        header { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 3rem 2rem; text-align: center; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
+        header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,96C1248,75,1344,53,1392,42.7L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom; background-size: cover; opacity: 0.3; }
+        .back-link { display: inline-flex; align-items: center; gap: 0.5rem; color: white; text-decoration: none; margin-bottom: 1.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px; transition: all 0.3s; position: relative; z-index: 1; }
+        .back-link:hover { background: rgba(255,255,255,0.3); }
+        header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; position: relative; z-index: 1; }
+        header p { font-size: 1.125rem; opacity: 0.95; position: relative; z-index: 1; }
+        main { flex: 1; max-width: 1000px; width: 100%; margin: 0 auto; padding: 3rem 2rem; }
+        .intro-section { background: var(--bg-card); padding: 2rem; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 2rem; }
+        .intro-section h2 { font-size: 1.875rem; color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem; }
+        .intro-section h3 { font-size: 1.375rem; color: var(--primary); margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .intro-section p { color: var(--text-gray); font-size: 1rem; line-height: 1.75; margin-bottom: 1rem; }
+        .intro-section ul { color: var(--text-gray); margin-left: 2rem; margin-bottom: 1rem; }
+        .intro-section li { margin-bottom: 0.5rem; line-height: 1.75; }
+        .code-block { background: #1e1e1e; color: #d4d4d4; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6; border-left: 4px solid var(--accent); }
+        .info-box { background: #dbeafe; border-left: 4px solid var(--primary); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; }
+        .warning-box { background: #fef3c7; border-left: 4px solid var(--warning); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        table th { background: var(--primary); color: white; padding: 1rem; text-align: left; font-weight: 600; }
+        table td { padding: 1rem; border-bottom: 1px solid var(--border); }
+        footer { background: var(--text-dark); color: white; padding: 2rem; text-align: center; margin-top: auto; }
+        footer a { color: var(--accent); text-decoration: none; }
+        @media (max-width: 768px) { header h1 { font-size: 2rem; } main { padding: 2rem 1rem; } }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/cloud-native-blogs/kubernetes/k8s_security_index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Security Guide
+        </a>
+        <h1><i class="fas fa-link"></i> Supply Chain Security</h1>
+        <p>Image Signing, SBOM, Artifact Verification, and CI/CD Pipeline Hardening</p>
+    </header>
+
+    <main>
+        <section class="intro-section">
+            <h2><i class="fas fa-shield-alt"></i> Supply Chain Security Overview</h2>
+            <p>
+                Container supply chain security ensures that the code and dependencies in your container images are 
+                verified and trustworthy. It covers vulnerability scanning, image signing, SBOM generation, CI/CD 
+                pipeline security, and artifact verification.
+            </p>
+            <div class="info-box">
+                <strong>💡 Key Insight:</strong> A container is only as secure as its weakest dependency. 
+                Supply chain attacks are increasingly targeting container ecosystems.
+            </div>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-search"></i> Vulnerability Scanning</h2>
+
+            <h3>Container Image Scanning Tools</h3>
+            <table>
+                <tr>
+                    <th>Tool</th>
+                    <th>Features</th>
+                </tr>
+                <tr>
+                    <td><strong>Trivy</strong></td>
+                    <td>Fast, comprehensive vulnerability scanning for images, config, code</td>
+                </tr>
+                <tr>
+                    <td><strong>Grype</strong></td>
+                    <td>SBOM-based vulnerability detection</td>
+                </tr>
+                <tr>
+                    <td><strong>Aqua Microscanner</strong></td>
+                    <td>Container image scanning in build pipelines</td>
+                </tr>
+                <tr>
+                    <td><strong>Snyk</strong></td>
+                    <td>Developer-focused vulnerability scanning and remediation</td>
+                </tr>
+                <tr>
+                    <td><strong>Anchore</strong></td>
+                    <td>Policy-based image scanning and compliance</td>
+                </tr>
+            </table>
+
+            <h3>Scan with Trivy</h3>
+            <div class="code-block">
+# Scan image for vulnerabilities
+trivy image myregistry.azurecr.io/myapp:latest
+
+# Scan with output format
+trivy image --format json myapp:latest
+
+# Scan source code
+trivy fs .
+            </div>
+
+            <h3>Scanning in CI/CD</h3>
+            <ul>
+                <li>Scan images before pushing to registry</li>
+                <li>Block deployment of high-severity vulnerabilities</li>
+                <li>Generate SBOM during build</li>
+                <li>Track vulnerability history</li>
+            </ul>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-signature"></i> Image Signing with Cosign</h2>
+
+            <h3>Cosign Overview</h3>
+            <p>Cosign enables container image signing and verification using cryptographic signatures:</p>
+            <ul>
+                <li>Sign images with private keys</li>
+                <li>Verify signatures using public keys</li>
+                <li>Store signatures in registry</li>
+                <li>Enforce signature verification at deployment</li>
+            </ul>
+
+            <h3>Sign an Image</h3>
+            <div class="code-block">
+# Generate keys (one-time)
+cosign generate-key-pair
+
+# Sign image
+cosign sign --key cosign.key myregistry.azurecr.io/myapp:latest
+
+# Verify signature
+cosign verify --key cosign.pub myregistry.azurecr.io/myapp:latest
+            </div>
+
+            <h3>Enforce Signature Verification</h3>
+            <p>Use admission controllers to require signed images:</p>
+            <ul>
+                <li><strong>Sigstore/Cosign:</strong> Native signature verification</li>
+                <li><strong>Notary:</strong> Docker notary for image signing</li>
+                <li><strong>OPA/Gatekeeper:</strong> Policy enforcement for signatures</li>
+            </ul>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-clipboard"></i> SBOM (Software Bill of Materials)</h2>
+
+            <h3>What is SBOM?</h3>
+            <p>A complete inventory of all software components and dependencies in an image:</p>
+            <ul>
+                <li>Operating system packages</li>
+                <li>Application libraries and frameworks</li>
+                <li>License information</li>
+                <li>Vulnerability metadata</li>
+            </ul>
+
+            <h3>Generate SBOM</h3>
+            <div class="code-block">
+# Generate with Syft
+syft myregistry.azurecr.io/myapp:latest -o json > sbom.json
+
+# Generate with Trivy
+trivy image --format sbom --output sbom.spdx myapp:latest
+
+# Sign SBOM with Cosign
+cosign attach sbom --sbom sbom.spdx myregistry.azurecr.io/myapp:latest
+            </div>
+
+            <h3>SBOM Benefits</h3>
+            <ul>
+                <li>Complete visibility into dependencies</li>
+                <li>Faster vulnerability tracking</li>
+                <li>License compliance verification</li>
+                <li>Supply chain transparency</li>
+            </ul>
+
+            <div class="warning-box">
+                <strong>⚠️ Important:</strong> SBOM helps track vulnerabilities but doesn't prevent attacks. 
+                Combine with other controls like image signing and vulnerability scanning.
+            </div>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-cogs"></i> CI/CD Pipeline Hardening</h2>
+
+            <h3>Secure Build Pipeline</h3>
+            <ul>
+                <li><strong>Source Code:</strong> Scan code for secrets, vulnerabilities</li>
+                <li><strong>Dependencies:</strong> Verify dependency versions, licenses</li>
+                <li><strong>Build:</strong> Use minimal base images, validate checksums</li>
+                <li><strong>Test:</strong> Run security tests, SAST, DAST</li>
+                <li><strong>Scan:</strong> Scan final image for vulnerabilities</li>
+                <li><strong>Sign:</strong> Sign image and generate SBOM</li>
+                <li><strong>Push:</strong> Push only to trusted registries</li>
+            </ul>
+
+            <h3>Example GitHub Actions Workflow</h3>
+            <div class="code-block">
+name: Secure Build
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run Trivy scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: myapp:${{ github.sha }}
+        
+    - name: Sign image with Cosign
+      run: cosign sign --key ${{ secrets.COSIGN_KEY }} myregistry.azurecr.io/myapp:latest
+            </div>
+
+            <h3>Pipeline Best Practices</h3>
+            <ul>
+                <li>Automate all security checks</li>
+                <li>Fail builds on high-severity vulnerabilities</li>
+                <li>Require code reviews before merge</li>
+                <li>Sign all production images</li>
+                <li>Generate SBOM for all images</li>
+                <li>Track image provenance</li>
+            </ul>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-check-circle"></i> Supply Chain Security Checklist</h2>
+            <ul>
+                <li>✓ Scan all base images before use</li>
+                <li>✓ Use minimal base images (Alpine, Distroless)</li>
+                <li>✓ Scan images during build process</li>
+                <li>✓ Generate SBOM for all images</li>
+                <li>✓ Sign production images with Cosign</li>
+                <li>✓ Enforce signature verification at deployment</li>
+                <li>✓ Scan source code and dependencies</li>
+                <li>✓ Use secure registries only</li>
+                <li>✓ Implement image retention policies</li>
+                <li>✓ Track image provenance and audit trails</li>
+            </ul>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-link"></i> Recommended Tools Stack</h2>
+            <ul>
+                <li><strong>Code Scanning:</strong> SonarQube, Snyk, GitHub CodeQL</li>
+                <li><strong>Dependency Checking:</strong> Dependabot, WhiteSource</li>
+                <li><strong>Image Scanning:</strong> Trivy, Aqua Microscanner</li>
+                <li><strong>SBOM Generation:</strong> Syft, Trivy</li>
+                <li><strong>Image Signing:</strong> Cosign, Notary</li>
+                <li><strong>Registry:</strong> Docker Hub, ECR, ACR, Harbor</li>
+                <li><strong>Policy Enforcement:</strong> OPA/Gatekeeper, Kyverno</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-heart"></i> Built with passion for the Cloud-Native community</p>
+        <p>&copy; 2025 Kubernetes Insights</p>
+    </footer>
+</body>
+</html>

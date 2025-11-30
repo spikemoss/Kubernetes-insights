@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes & CNCF Glossary | Cloud-Native Glossary</title>
+    <meta name="description" content="Comprehensive glossary of Kubernetes and Cloud Native Computing Foundation (CNCF) terms, definitions, and concepts">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Root Variables */
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 2rem 2rem;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        /* Search Bar */
+        .search-container {
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-box:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Breadcrumb Navigation */
+        .breadcrumb {
+            background: var(--bg-light);
+            padding: 0.75rem 2rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 76px;
+            z-index: 90;
+        }
+
+        .breadcrumb-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            max-width: 1200px;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb-item a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .breadcrumb-item a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        .breadcrumb-item a i {
+            font-size: 0.85rem;
+        }
+
+        .breadcrumb-item::after {
+            content: "/";
+            color: var(--text-gray);
+            margin-left: 0.5rem;
+            font-weight: 300;
+        }
+
+        .breadcrumb-item:last-child::after {
+            content: "";
+            margin: 0;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--text-gray);
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .intro-section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 3rem;
+        }
+
+        .intro-section h2 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .intro-section h2 i {
+            color: var(--accent);
+        }
+
+        .intro-section p {
+            color: var(--text-gray);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        /* Category Filter */
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-dark);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Glossary Terms */
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .term-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border-top: 4px solid var(--accent);
+            display: none;
+        }
+
+        .term-card.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .term-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .term-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .term-category {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .term-definition {
+            color: var(--text-gray);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .term-related {
+            font-size: 0.85rem;
+            color: var(--primary);
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .term-related strong {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .related-link {
+            color: var(--primary);
+            text-decoration: none;
+            margin-right: 0.75rem;
+            transition: opacity 0.3s;
+        }
+
+        .related-link:hover {
+            opacity: 0.7;
+            text-decoration: underline;
+        }
+
+        /* Statistics */
+        .glossary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        footer a:hover {
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .search-container {
+                max-width: 100%;
+            }
+
+            .glossary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.25rem;
+            }
+
+            main {
+                padding: 1.5rem 1rem;
+            }
+
+            .category-filter {
+                gap: 0.5rem;
+            }
+
+            .filter-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <h1><i class="fas fa-book"></i> Kubernetes & CNCF Glossary</h1>
+            <div class="search-container">
+                <input type="text" class="search-box" id="searchInput" placeholder="Search terms...">
+            </div>
+            <a href="../index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol class="breadcrumb-list">
+            <li class="breadcrumb-item">
+                <a href="/cloud-native-blogs/index.html">
+                    <i class="fas fa-home"></i> Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/cloud-native-blogs/sitemap.html">Resources</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Glossary
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Intro Section -->
+        <div class="intro-section">
+            <h2><i class="fas fa-lightbulb"></i> Welcome to the Cloud-Native Glossary</h2>
+            <p>
+                This comprehensive glossary contains <strong>100+ essential Kubernetes and CNCF terms</strong> with clear definitions, 
+                explanations, and related concepts. Whether you're new to Kubernetes or expanding your knowledge of cloud-native technologies, 
+                this resource will help you understand key terminology and best practices.
+            </p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="glossary-stats">
+            <div class="stat-card">
+                <div class="stat-number">100+</div>
+                <div class="stat-label">K8s & CNCF Terms</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">6</div>
+                <div class="stat-label">Main Categories</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">Cross-linked</div>
+                <div class="stat-label">Related Concepts</div>
+            </div>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="category-filter">
+            <button class="filter-btn active" onclick="filterTerms('all')">All Terms</button>
+            <button class="filter-btn" onclick="filterTerms('core')">Core K8s</button>
+            <button class="filter-btn" onclick="filterTerms('networking')">Networking</button>
+            <button class="filter-btn" onclick="filterTerms('storage')">Storage</button>
+            <button class="filter-btn" onclick="filterTerms('cncf')">CNCF Tools</button>
+            <button class="filter-btn" onclick="filterTerms('advanced')">Advanced</button>
+        </div>
+
+        <!-- Glossary Terms Grid -->
+        <div class="glossary-grid" id="glossaryGrid"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p><i class="fas fa-heart"></i> Built with knowledge for the Cloud-Native community</p>
+        <p>&copy; 2025 Cloud-Native Blogs | <a href="https://github.com/ashish02510gh/cloud-native-blogs">GitHub</a></p>
+    </footer>
+
+    <script>
+        // Glossary Data
+        const glossaryTerms = [
+            // Core Kubernetes
+            { term: "Pod", category: "core", definition: "The smallest deployable unit in Kubernetes. A pod can contain one or more containers that share storage, network, and specification for how to run the containers.", related: "Deployment, Container, Node" },
+            { term: "Deployment", category: "core", definition: "A Kubernetes object that manages the creation and scaling of pods. It ensures that a specified number of pod replicas are running at any given time.", related: "ReplicaSet, Pod, Service" },
+            { term: "Service", category: "core", definition: "An abstract way to expose applications running on pods over a network. Services provide a stable endpoint for accessing pods.", related: "Pod, Ingress, Load Balancer" },
+            { term: "Namespace", category: "core", definition: "A virtual cluster within Kubernetes that allows multiple teams or projects to share the same cluster while maintaining separation and resource quotas.", related: "RBAC, ResourceQuota, NetworkPolicy" },
+            { term: "ConfigMap", category: "core", definition: "An API object used to store non-confidential configuration data in key-value pairs. Used to decouple configuration from container images.", related: "Secret, Environment Variables" },
+            { term: "Secret", category: "core", definition: "An API object for storing sensitive data like passwords, API keys, and certificates. Secrets are base64-encoded and should be encrypted at rest.", related: "ConfigMap, Encryption, RBAC" },
+            { term: "StatefulSet", category: "core", definition: "A Kubernetes workload API object used to manage stateful applications. Provides stable network identity and persistent storage ordering.", related: "Deployment, PersistentVolume, Headless Service" },
+            { term: "DaemonSet", category: "core", definition: "Ensures that a copy of a pod runs on every node (or selected nodes) in the cluster. Used for cluster-wide services like monitoring agents.", related: "Pod, Node, Deployment" },
+            { term: "Job", category: "core", definition: "Creates one or more pods and ensures that a specified number of them successfully terminate. Used for batch processing and one-off tasks.", related: "CronJob, Pod, Task" },
+            { term: "CronJob", category: "core", definition: "Manages time-based jobs, running a job periodically on a schedule similar to Unix cron jobs.", related: "Job, Schedule" },
+            { term: "Ingress", category: "core", definition: "Manages external HTTP(S) access to services within a cluster, typically for routing traffic based on hostnames and paths.", related: "Service, LoadBalancer, Controller" },
+            { term: "Node", category: "core", definition: "A worker machine in Kubernetes, can be either a virtual or physical machine. Each node contains the services necessary to run pods.", related: "Cluster, Pod, Kubelet" },
+            { term: "Cluster", category: "core", definition: "A set of nodes running containerized applications managed by Kubernetes. Includes control plane and worker nodes.", related: "Node, Control Plane, kubelet" },
+            { term: "Control Plane", category: "core", definition: "The set of processes that make decisions about the cluster (like scheduling) and respond to cluster events. Formerly called the master node.", related: "API Server, etcd, Scheduler" },
+            { term: "kubelet", category: "core", definition: "An agent that runs on each node and ensures containers are running in pods. Communicates with the API Server.", related: "Node, Container Runtime, API Server" },
+            { term: "API Server", category: "core", definition: "The front end of the Kubernetes control plane. It exposes the Kubernetes API and handles all REST operations.", related: "Control Plane, RBAC, etcd" },
+            { term: "Scheduler", category: "core", definition: "A control plane component that watches newly created pods and selects a node for them to run on.", related: "Control Plane, Pod, Node" },
+            { term: "etcd", category: "core", definition: "A consistent and highly-available key value store used as Kubernetes' backing store for all cluster data. Must be backed up regularly.", related: "Control Plane, Backup, Security" },
+            { term: "Controller", category: "core", definition: "A control loop that watches the state of your cluster and makes or requests changes. Controllers work through the API Server.", related: "Control Plane, Operator, CRD" },
+
+            // Networking
+            { term: "Service Discovery", category: "networking", definition: "Mechanism for clients to discover and communicate with services. Kubernetes uses DNS and environment variables for service discovery.", related: "Service, DNS, CoreDNS" },
+            { term: "DNS", category: "networking", definition: "Domain Name System used in Kubernetes to resolve service names to IP addresses. CoreDNS is the default DNS service.", related: "Service Discovery, CoreDNS, Domain" },
+            { term: "CoreDNS", category: "networking", definition: "The default DNS server in Kubernetes clusters. Resolves service names to cluster IP addresses and provides service discovery.", related: "DNS, Service Discovery, Kubernetes" },
+            { term: "Network Policy", category: "networking", definition: "A specification of how pods are allowed to communicate with each other and with other network endpoints. Implements microsegmentation.", related: "Ingress, Egress, Security, CNI" },
+            { term: "CNI", category: "networking", definition: "Container Network Interface. A plugin architecture for configuring network interfaces in containers. Examples: Flannel, Calico, Weave.", related: "Network Plugin, Pod Networking" },
+            { term: "Calico", category: "networking", definition: "A popular CNI plugin providing network connectivity and network policy management for Kubernetes clusters. Uses BGP routing.", related: "CNI, Network Policy, Networking" },
+            { term: "Flannel", category: "networking", definition: "A simple CNI plugin that provides a virtual network fabric for Kubernetes. Uses VXLAN or UDP tunneling.", related: "CNI, Network Plugin, Kubernetes" },
+            { term: "Cilium", category: "networking", definition: "Advanced CNI plugin using eBPF for networking and security. Provides network policies, service mesh, and observability.", related: "CNI, eBPF, Network Policy, Service Mesh" },
+            { term: "Weave", category: "networking", definition: "A CNI plugin that provides simple, resilient, and multi-cloud Kubernetes networking.", related: "CNI, Network Plugin" },
+            { term: "Load Balancer", category: "networking", definition: "A service type that exposes applications on an external IP address. Each service gets a unique external IP.", related: "Service, Ingress, NodePort" },
+            { term: "NodePort", category: "networking", definition: "A service type that exposes a service on a static port on every node. Useful for external access.", related: "Service, LoadBalancer, ClusterIP" },
+            { term: "ClusterIP", category: "networking", definition: "The default service type. Exposes the service on an internal cluster IP, making it reachable only from within the cluster.", related: "Service, ServiceDiscovery" },
+            { term: "Ingress Controller", category: "networking", definition: "A controller that watches Ingress resources and configures a load balancer or reverse proxy. Examples: NGINX, HAProxy, Traefik.", related: "Ingress, LoadBalancer, Routing" },
+            { term: "mTLS", category: "networking", definition: "Mutual TLS. Encryption and authentication between client and server. Commonly used with service meshes for pod-to-pod communication.", related: "TLS, Service Mesh, Istio, Linkerd" },
+            { term: "eBPF", category: "networking", definition: "Extended Berkeley Packet Filter. Allows safe and efficient programs to run in the Linux kernel. Used for advanced networking and observability.", related: "Cilium, Falco, Networking" },
+
+            // Storage
+            { term: "PersistentVolume", category: "storage", definition: "A piece of storage in the cluster that has been provisioned by an administrator or dynamically provisioned using StorageClasses.", related: "PVC, StorageClass, Volume" },
+            { term: "PersistentVolumeClaim", category: "storage", definition: "A request for storage by a user. PVCs specify size and access modes and are bound to PersistentVolumes.", related: "PersistentVolume, StorageClass" },
+            { term: "StorageClass", category: "storage", definition: "Provides a way to describe the kinds of storage offered and provisions PersistentVolumes dynamically. Enables dynamic provisioning.", related: "PersistentVolume, PVC, Provisioner" },
+            { term: "Volume", category: "storage", definition: "A directory accessible to containers in a pod. Volumes are not limited by container lifecycle, enabling data persistence.", related: "PersistentVolume, Storage" },
+            { term: "CSI", category: "storage", definition: "Container Storage Interface. A standard for exposing storage systems to containerized workloads. Allows third-party storage drivers.", related: "StorageClass, PersistentVolume, Volume" },
+            { term: "EmptyDir", category: "storage", definition: "A volume that is created when a pod is assigned to a node and deleted when the pod is removed. Lives as long as the pod.", related: "Volume, Temporary Storage" },
+            { term: "HostPath", category: "storage", definition: "A volume that mounts a file or directory from the host node into a pod. Useful for accessing host resources.", related: "Volume, Node Access" },
+
+            // CNCF Tools
+            { term: "Helm", category: "cncf", definition: "A package manager for Kubernetes. Helm Charts define, install, and upgrade complex Kubernetes applications with templates and dependencies.", related: "Chart, Release, Package Manager" },
+            { term: "Helm Chart", category: "cncf", definition: "A collection of files describing a related set of Kubernetes resources. Charts can be packaged, versioned, and shared.", related: "Helm, Package, Release" },
+            { term: "Prometheus", category: "cncf", definition: "An open-source monitoring and alerting system. Scrapes metrics from targets and stores them in a time-series database.", related: "Monitoring, Metrics, AlertManager" },
+            { term: "Grafana", category: "cncf", definition: "A visualization platform for metrics and observability. Works with Prometheus and other data sources to create dashboards.", related: "Visualization, Monitoring, Prometheus" },
+            { term: "Jaeger", category: "cncf", definition: "An open-source tool for distributed tracing. Used to monitor and troubleshoot complex microservices systems.", related: "Tracing, Observability, Distributed Systems" },
+            { term: "Istio", category: "cncf", definition: "A service mesh implementation providing traffic management, security, and observability for microservices. Injects Envoy sidecars.", related: "Service Mesh, Envoy, mTLS" },
+            { term: "Envoy", category: "cncf", definition: "A proxy and communication bus designed for large modern service-oriented architectures. Used as a data plane in service meshes.", related: "Proxy, Service Mesh, Istio" },
+            { term: "Linkerd", category: "cncf", definition: "A lightweight service mesh for Kubernetes. Provides traffic management, security, and observability with minimal overhead.", related: "Service Mesh, mTLS, Observability" },
+            { term: "Consul", category: "cncf", definition: "A distributed service mesh and service discovery platform. Provides service discovery, configuration, and service segmentation.", related: "Service Mesh, Service Discovery" },
+            { term: "Flux", category: "cncf", definition: "A GitOps tool for Kubernetes. Continuously synchronizes cluster state with Git repositories, enabling declarative infrastructure.", related: "GitOps, Continuous Deployment, CD" },
+            { term: "ArgoCD", category: "cncf", definition: "A declarative GitOps continuous delivery tool for Kubernetes. Automatically syncs Kubernetes manifests from Git repositories.", related: "GitOps, Continuous Deployment, CD" },
+            { term: "Vault", category: "cncf", definition: "A tool for securely storing and accessing secrets. Provides encryption, access control, and audit logging for sensitive data.", related: "Secrets, Security, Encryption" },
+            { term: "Falco", category: "cncf", definition: "A runtime security tool that detects and alerts on suspicious runtime behavior. Uses Linux system calls for detection.", related: "Security, Monitoring, Threat Detection" },
+            { term: "Kube-bench", category: "cncf", definition: "A tool that checks Kubernetes clusters against the CIS Kubernetes Benchmark for security compliance.", related: "Security, Compliance, CIS Benchmark" },
+            { term: "OPA/Gatekeeper", category: "cncf", definition: "Open Policy Agent with Gatekeeper for policy as code. Enforce security and compliance policies on Kubernetes resources.", related: "Policy, Security, Compliance" },
+
+            // Advanced
+            { term: "Custom Resource Definition", category: "advanced", definition: "Allows you to define your own custom Kubernetes objects. CRDs extend the Kubernetes API for domain-specific abstractions.", related: "Operator, Controller, API Extension" },
+            { term: "Operator", category: "advanced", definition: "A method of packaging, deploying, and managing a Kubernetes application. Operators encode domain knowledge about applications.", related: "CRD, Controller, Automation" },
+            { term: "Kustomize", category: "advanced", definition: "A Kubernetes native configuration management tool. Allows customization of YAML manifests without templates.", related: "ConfigManagement, Helm Alternative, YAML" },
+            { term: "GitOps", category: "advanced", definition: "An operational model where Git is the source of truth for infrastructure and application deployments. Used with tools like Flux and ArgoCD.", related: "IaC, Continuous Deployment, Git" },
+            { term: "RBAC", category: "advanced", definition: "Role-Based Access Control. Controls what authenticated users can do within Kubernetes based on their roles.", related: "AuthN, AuthZ, Security, ClusterRole" },
+            { term: "Pod Security Policy", category: "advanced", definition: "A cluster-level resource that controls security-sensitive aspects of pod specification. Now deprecated in favor of Pod Security Standards.", related: "PSS, Security, Pod" },
+            { term: "Pod Security Standards", category: "advanced", definition: "A replacement for PSPs providing graduated security policies (Unrestricted, Baseline, Restricted).", related: "PSP, Security, Pod" },
+            { term: "Admission Controller", category: "advanced", definition: "Intercepts requests to the Kubernetes API Server to validate or mutate requests. Used for policy enforcement.", related: "Webhook, Validation, Mutation" },
+            { term: "Webhook", category: "advanced", definition: "A mechanism for extending Kubernetes. Webhooks allow external systems to be called when Kubernetes events occur.", related: "Admission Controller, Extensibility" },
+            { term: "Multi-cluster", category: "advanced", definition: "Running Kubernetes across multiple clusters for high availability, disaster recovery, or geographical distribution.", related: "Federation, Cluster API, HA" },
+            { term: "Service Mesh", category: "advanced", definition: "An infrastructure layer that handles service-to-service communication in microservices architectures. Provides observability and security.", related: "mTLS, Istio, Linkerd" },
+            { term: "Sidecar", category: "advanced", definition: "A separate container that runs alongside an application container in the same pod. Used for logging, monitoring, and security.", related: "Pod, Service Mesh, Proxy" },
+            { term: "HPA", category: "advanced", definition: "Horizontal Pod Autoscaler. Automatically scales the number of pods based on observed metrics like CPU or custom metrics.", related: "Scaling, Metrics, Kubernetes" },
+            { term: "VPA", category: "advanced", definition: "Vertical Pod Autoscaler. Automatically adjusts CPU and memory requests/limits for pods based on usage patterns.", related: "Resource Management, Scaling" },
+            { term: "CA", category: "advanced", definition: "Cluster Autoscaler. Automatically scales the number of nodes in your cluster based on pod resource requests.", related: "Auto-scaling, Infrastructure, Nodes" },
+            { term: "Reconciliation", category: "advanced", definition: "The core concept in Kubernetes where controllers continuously try to match current state to desired state. The 'operator pattern'.", related: "Controller, Desired State, Operations" }
+        ];
+
+        // Initialize glossary on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            displayTerms('all');
+            setupSearch();
+        });
+
+        // Display terms by category
+        function displayTerms(category) {
+            const grid = document.getElementById('glossaryGrid');
+            grid.innerHTML = '';
+
+            const filtered = category === 'all' ? glossaryTerms : glossaryTerms.filter(t => t.category === category);
+
+            filtered.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'term-card show';
+                card.innerHTML = `
+                    <div class="term-title">
+                        <i class="fas fa-tag"></i> ${item.term}
+                    </div>
+                    <div class="term-category">${item.category}</div>
+                    <div class="term-definition">${item.definition}</div>
+                    <div class="term-related">
+                        <strong>Related Terms:</strong> ${item.related}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            // Update active filter button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // Search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value.toLowerCase();
+                const cards = document.querySelectorAll('.term-card');
+
+                cards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    card.classList.toggle('show', text.includes(query));
+                });
+            });
+        }
+
+        // Filter terms
+        function filterTerms(category) {
+            event.target.blur(); // Remove focus after click
+            const cards = document.querySelectorAll('.term-card');
+
+            if (category === 'all') {
+                cards.forEach(card => card.classList.add('show'));
+            } else {
+                cards.forEach(card => {
+                    const categoryTag = card.querySelector('.term-category').textContent.toLowerCase();
+                    card.classList.toggle('show', categoryTag === category);
+                });
+            }
+
+            // Update active filter button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

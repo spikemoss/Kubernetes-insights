@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RBAC Plan for Kubernetes</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --bg-light: #f8fafc;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Breadcrumb Navigation */
+        .breadcrumb {
+            background: var(--bg-light);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .breadcrumb-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            max-width: 1200px;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .breadcrumb-item a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .breadcrumb-item a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        .breadcrumb-item a i {
+            font-size: 0.85rem;
+        }
+
+        .breadcrumb-item::after {
+            content: "/";
+            color: var(--text-gray);
+            margin-left: 0.5rem;
+            font-weight: 300;
+        }
+
+        .breadcrumb-item:last-child::after {
+            content: "";
+            margin: 0;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--text-gray);
+            font-weight: 500;
+        }
+
+        /* Page content styles */
+        main {
+            margin: 0;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        h1 {
+            border-bottom: 2px solid #333;
+        }
+        .code-block {
+            background-color: #333;
+            color: #eee;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol class="breadcrumb-list">
+            <li class="breadcrumb-item">
+                <a href="/cloud-native-blogs/index.html">
+                    <i class="fas fa-home"></i> Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/cloud-native-blogs/sitemap.html">Security</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                RBAC Setup
+            </li>
+        </ol>
+    </nav>
+
+    <main>
+        <h1>RBAC Plan for Kubernetes Cluster</h1>
+    <div class="section">
+        <h2>1. Define Roles and Responsibilities</h2>
+        <p>
+            - Identify teams and projects.<br>
+            - Specify access requirements for resources like Pods, Deployments, and ConfigMaps.<br>
+            - Group permissions into roles such as <i>developer, admin, viewer</i>.
+        </p>
+    </div>
+    <div class="section">
+        <h2>2. Use Namespaces for Isolation</h2>
+        <p>
+            - Create separate namespaces for each team or project.<br>
+            - Assign namespace-specific roles using <b>Role</b> and <b>RoleBinding</b>.
+        </p>
+    </div>
+    <div class="section">
+        <h2>3. Create Service Accounts</h2>
+        <p>
+            - Assign service accounts to applications needing API interaction.<br>
+            - Create service accounts within relevant namespaces for better management.
+        </p>
+    </div>
+    <div class="section">
+        <h2>4. Define Roles and ClusterRoles</h2>
+        <p>
+            - Use <b>Role</b> for namespace-scoped permissions.<br>
+            - Use <b>ClusterRole</b> for cluster-wide permissions.
+        </p>
+    </div>
+    <div class="section">
+        <h2>5. Bind Roles to Users and Service Accounts</h2>
+        <p>
+            - Use <b>RoleBinding</b> to assign roles within namespaces.<br>
+            - Use <b>ClusterRoleBinding</b> for cluster-wide role assignments.
+        </p>
+    </div>
+    <div class="section">
+        <h2>6. Implement Least Privilege</h2>
+        <p>
+            - Grant only necessary permissions for each role.<br>
+            - Periodically review and audit permissions to align with current needs.
+        </p>
+    </div>
+    <div class="section">
+        <h2>7. Monitor and Audit</h2>
+        <p>
+            - Enable Kubernetes auditing to track access and changes.<br>
+            - Monitor cluster activity using tools like Prometheus and Grafana.
+        </p>
+    </div>
+    <div class="section">
+        <h2>Example YAML Configurations</h2>
+        <h3>Role for Developers</h3>
+        <div class="code-block">
+apiVersion: rbac.authorization.k8s.io/v1<br>
+kind: Role<br>
+metadata:<br>
+&nbsp;&nbsp;namespace: dev-team<br>
+&nbsp;&nbsp;name: developer-role<br>
+rules:<br>
+- apiGroups: [""]<br>
+&nbsp;&nbsp;resources: ["pods", "services", "configmaps"]<br>
+&nbsp;&nbsp;verbs: ["get", "list", "create", "update", "delete"]
+        </div>
+        <h3>RoleBinding for Developer Group</h3>
+        <div class="code-block">
+apiVersion: rbac.authorization.k8s.io/v1<br>
+kind: RoleBinding<br>
+metadata:<br>
+&nbsp;&nbsp;namespace: dev-team<br>
+&nbsp;&nbsp;name: developer-binding<br>
+subjects:<br>
+- kind: Group<br>
+&nbsp;&nbsp;name: dev-team-group<br>
+&nbsp;&nbsp;apiGroup: rbac.authorization.k8s.io<br>
+roleRef:<br>
+&nbsp;&nbsp;kind: Role<br>
+&nbsp;&nbsp;name: developer-role<br>
+&nbsp;&nbsp;apiGroup: rbac.authorization.k8s.io
+        </div>
+        <h3>ClusterRole for Admins</h3>
+        <div class="code-block">
+apiVersion: rbac.authorization.k8s.io/v1<br>
+kind: ClusterRole<br>
+metadata:<br>
+&nbsp;&nbsp;name: cluster-admin-role<br>
+rules:<br>
+- apiGroups: ["*"]<br>
+&nbsp;&nbsp;resources: ["*"]<br>
+&nbsp;&nbsp;verbs: ["*"]
+        </div>
+        <h3>ClusterRoleBinding for Admin Group</h3>
+        <div class="code-block">
+apiVersion: rbac.authorization.k8s.io/v1<br>
+kind: ClusterRoleBinding<br>
+metadata:<br>
+&nbsp;&nbsp;name: cluster-admin-binding<br>
+subjects:<br>
+- kind: Group<br>
+&nbsp;&nbsp;name: admin-group<br>
+&nbsp;&nbsp;apiGroup: rbac.authorization.k8s.io<br>
+roleRef:<br>
+&nbsp;&nbsp;kind: ClusterRole<br>
+&nbsp;&nbsp;name: cluster-admin-role<br>
+&nbsp;&nbsp;apiGroup: rbac.authorization.k8s.io
+        </div>
+        <h3>ServiceAccount for Applications</h3>
+        <div class="code-block">
+apiVersion: v1<br>
+kind: ServiceAccount<br>
+metadata:<br>
+&nbsp;&nbsp;name: app-service-account<br>
+&nbsp;&nbsp;namespace: dev-team
+        </div>
+    </main>
+</body>
+</html>
+

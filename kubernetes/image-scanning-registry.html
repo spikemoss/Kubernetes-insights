@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloud Security: Image Scanning & Registry Best Practices</title>
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <style>
+    :root {
+      --primary: #1e40af;
+      --accent: #06b6d4;
+      --danger: #ef4444;
+      --success: #10b981;
+      --bg-light: #f8fafc;
+      --bg-card: #fff;
+      --text-dark: #0f172a;
+      --text-gray: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 4px 16px -4px rgba(30,64,175,0.08);
+    }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa 0%, #aedff7 100%);
+      margin: 0;
+      color: var(--text-dark);
+    }
+    .navbar {
+      background: var(--primary);
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: var(--shadow);
+    }
+    .navbar .site-title {
+      font-weight: 700; font-size: 1.3rem; letter-spacing: 1px;
+    }
+    .navbar .nav-links a {
+      color: #fff; margin-left: 1.1rem; text-decoration: none; font-weight: 500;
+      transition: color .2s;
+    }
+    .navbar .nav-links a:hover {color: var(--accent);}
+    main {
+      max-width: 820px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: var(--bg-card);
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+    }
+    h1, h2 { color: var(--primary);}
+    h1 { font-size: 2.1rem; margin-bottom: 1rem;}
+    h2 { font-size: 1.28rem; margin-top: 2rem;}
+    .intro-section {margin-bottom: 1.3rem;}
+    .info-box {
+      background: var(--bg-light);
+      border-left: 5px solid var(--accent);
+      padding: 1.1rem 1.3rem;
+      border-radius: .7rem;
+      margin: 1.3rem 0;
+      color: var(--text-gray);
+    }
+    .danger, .danger ul { color: var(--danger);}
+    ul, ol {padding-left: 1.5rem;}
+    li {margin-bottom: .7rem;}
+    .best-practices {
+      background: var(--bg-light);
+      padding: 1.2rem 1.35rem;
+      border-radius: .7rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px -6px #1e40af60;
+      border-left: 5px solid var(--success);
+    }
+    .best-practices h3 { margin-top: 0;}
+    i {margin-right: .37em;}
+    @media (max-width: 700px) {
+      main {padding: 1rem;}
+      h1 {font-size: 1.3rem;}
+      h2 {font-size: 1.01rem;}
+    }
+    .footer {
+      text-align: center;
+      padding: 1.2rem 0;
+      background: var(--bg-card);
+      color: var(--text-gray);
+      font-size: .95rem;
+      border-top: 1px solid var(--border);
+      margin-top: 2rem;
+      box-shadow: 0 -3px 13px -7px rgba(30,64,175,0.07);
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="site-title"><i class="fa-solid fa-shield-halved"></i> Cloud Security Guide</div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="k8s_security_index.html">Security Index</a>
+      <a href="k8s_ansible_guide.html">Automation Guide</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="intro-section">
+      <h1><i class="fa-solid fa-microscope"></i> Image Scanning & Registry Security</h1>
+      <div class="info-box">
+        <strong>Why This Matters:</strong>  
+        Container images and registries are common attack vectors in cloud-native applications. Without proper scanning and registry controls, you risk deploying vulnerabilities and exposing your supply chain.
+      </div>
+      <p>
+        This guide covers actionable best practices for scanning your images, securing registries, enforcing automated policies, and defending against real-world threats.
+      </p>
+    </div>
+
+    <div class="best-practices">
+      <h3><i class="fas fa-check-circle"></i> Best Practices for Image & Registry Security</h3>
+      <ul>
+        <li><i class="fas fa-shield-virus"></i> Scan all container images for vulnerabilities <b>before deployment</b> using automated tools like Trivy, Clair, or Aqua.</li>
+        <li><i class="fas fa-cloud-upload-alt"></i> Use only <b>trusted, private registries</b> (Docker Hub with content trust, Azure Container Registry, Amazon ECR) and restrict image pulls to expected sources.</li>
+        <li><i class="fas fa-signature"></i> Implement image signing (Notary, Cosign, Sigstore) to verify integrity and provenance.</li>
+        <li><i class="fas fa-gavel"></i> Enforce Admission Controllers (Kyverno, OPA Gatekeeper) to block deployments of untrusted or vulnerable images automatically.</li>
+        <li><i class="fas fa-sync-alt"></i> Update base images regularly, and rebuild workloads promptly to patch new CVEs.</li>
+        <li><i class="fas fa-link"></i> Automate registry mirror updates and regularly synchronize to prevent supply chain risks.</li>
+        <li><i class="fas fa-exclamation-triangle"></i> Monitor registry access logs for unauthorized or suspicious downloads.</li>
+        <li><i class="fas fa-toolbox"></i> Integrate image scanning into your CI/CD pipeline for shift-left security during build and deploy.</li>
+      </ul>
+    </div>
+
+    <h2><i class="fa-solid fa-bug"></i> Common Threats</h2>
+    <div class="info-box danger">
+      <ul>
+        <li>Deploying images with known security vulnerabilities due to missing or outdated scans.</li>
+        <li>Pulling from public registries exposes your environment to supply chain attacks.</li>
+        <li>Using unsigned images or third-party artifacts lacking provenance and integrity.</li>
+        <li>Registry misconfigurations leading to unauthorized access or malicious overwrites.</li>
+      </ul>
+      <strong>Pro Tip:</strong> Automate image policy enforcement—block risky images before production, and always use multi-factor authentication for registry access.
+    </div>
+
+    <h2><i class="fas fa-tools"></i> Recommended Tools</h2>
+    <ul>
+      <li><b>Trivy</b>, Aqua, <b>Clair</b> - Automated image vulnerability scanning</li>
+      <li><b>Sigstore</b>, Cosign, Notary - Image signing, integrity, and provenance</li>
+      <li><b>Kyverno</b>, <b>OPA Gatekeeper</b> - Policy enforcement at deploy/admission time</li>
+      <li><b>Prometheus + Grafana</b> - Monitor registry activity and scan status</li>
+    </ul>
+  </main>
+
+    <!-- Footer Section -->
+    <footer>
+        <p><i class="fas fa-shield-alt"></i> Stay Secure, Stay Vigilant</p>
+        <p>&copy; 2025 Kubernetes Insights by Sharmaji Cloud Wale | 
+            <a href="https://github.com/ashish02510gh" target="_blank"><i class="fab fa-github"></i> GitHub</a> | 
+            <a href="https://linkedin.com/in/yourprofile" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+        </p>
+    </footer>
+</body>
+</html>

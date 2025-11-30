@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Journey | Cloud-Native Kubernetes</title>
+    <meta name="description" content="Progressive learning path for Kubernetes and cloud-native technologies from beginner to advanced">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Root Variables */
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        /* Breadcrumb Navigation */
+        .breadcrumb {
+            background: var(--bg-light);
+            padding: 0.75rem 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .breadcrumb-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            max-width: 1200px;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb-item a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .breadcrumb-item a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        .breadcrumb-item::after {
+            content: "/";
+            color: var(--text-gray);
+            margin-left: 0.5rem;
+            font-weight: 300;
+        }
+
+        .breadcrumb-item:last-child::after {
+            content: "";
+        }
+
+        .breadcrumb-item.active {
+            color: var(--text-gray);
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .intro-section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 3rem;
+            border-top: 4px solid var(--accent);
+        }
+
+        .intro-section h2 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .intro-section h2 i {
+            color: var(--accent);
+        }
+
+        .intro-section p {
+            color: var(--text-gray);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        /* Learning Path Timeline */
+        .learning-timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .learning-timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--accent));
+            border-radius: 2px;
+        }
+
+        /* Learning Stages */
+        .learning-stage {
+            margin-bottom: 3rem;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .learning-stage:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+
+        .stage-content {
+            flex: 1;
+        }
+
+        .stage-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem;
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .stage-indicator {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stage-badge {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            color: white;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .learning-stage:nth-child(2) .stage-badge {
+            background: linear-gradient(135deg, var(--accent) 0%, #0891b2 100%);
+        }
+
+        .learning-stage:nth-child(3) .stage-badge {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+        }
+
+        .stage-badge i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stage-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+        }
+
+        .stage-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .stage-description {
+            color: var(--text-gray);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .learning-card {
+            background: linear-gradient(135deg, var(--bg-light) 0%, white 100%);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .learning-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+            border-color: var(--accent);
+        }
+
+        .learning-card-icon {
+            font-size: 2rem;
+            color: var(--accent);
+        }
+
+        .learning-card-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .learning-card-desc {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            line-height: 1.4;
+        }
+
+        /* Prerequisites */
+        .prerequisites {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .prerequisites h3 {
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .prerequisites ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .prerequisites li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        .prerequisites li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        /* Key Skills Section */
+        .key-skills {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-top: 3px solid var(--primary);
+        }
+
+        .key-skills h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .skill-tag {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .learning-stage:nth-child(2) .skill-tag {
+            background: linear-gradient(135deg, var(--accent) 0%, #0891b2 100%);
+        }
+
+        .learning-stage:nth-child(3) .skill-tag {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+        }
+
+        /* Estimated Timeline */
+        .timeline-info {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        .timeline-item i {
+            color: var(--accent);
+        }
+
+        /* Progress Visual */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            border-radius: 3px;
+        }
+
+        /* Resources Section */
+        .resources-section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-top: 3rem;
+            border-top: 4px solid var(--success);
+        }
+
+        .resources-section h2 {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .resource-card {
+            background: linear-gradient(135deg, var(--bg-light) 0%, white 100%);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s;
+        }
+
+        .resource-card:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent);
+        }
+
+        .resource-icon {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .resource-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .resource-desc {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            line-height: 1.4;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        footer a:hover {
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .learning-timeline::before {
+                left: 30px;
+            }
+
+            .learning-stage {
+                flex-direction: column !important;
+            }
+
+            .stage-indicator {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            main {
+                padding: 1.5rem 1rem;
+            }
+
+            .learning-timeline::before {
+                display: none;
+            }
+
+            .stage-badge {
+                width: 90px;
+                height: 90px;
+                font-size: 0.9rem;
+            }
+
+            .stage-badge i {
+                font-size: 1.5rem;
+            }
+
+            .stage-cards {
+                grid-template-columns: 1fr;
+                padding: 1.5rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            header h1 {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <h1><i class="fas fa-graduation-cap"></i> Learning Journey</h1>
+            <a href="index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol class="breadcrumb-list">
+            <li class="breadcrumb-item">
+                <a href="/cloud-native-blogs/index.html">
+                    <i class="fas fa-home"></i> Home
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/cloud-native-blogs/sitemap.html">Learning</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Learning Journey
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Intro Section -->
+        <div class="intro-section">
+            <h2><i class="fas fa-route"></i> Your Kubernetes Learning Path</h2>
+            <p>
+                This interactive guide provides a structured learning path from <strong>beginner to advanced</strong> Kubernetes skills. 
+                Each stage builds upon the previous one, with curated resources, practical exercises, and key concepts to master. 
+                Follow this journey to become proficient in container orchestration and cloud-native architecture.
+            </p>
+        </div>
+
+        <!-- Learning Timeline -->
+        <div class="learning-timeline">
+            <!-- Stage 1: Beginner -->
+            <div class="learning-stage">
+                <div class="stage-indicator">
+                    <div class="stage-badge">
+                        <i class="fas fa-book"></i>
+                        <span>Beginner</span>
+                    </div>
+                </div>
+                <div class="stage-content">
+                    <div class="stage-title">Foundation: Container & Kubernetes Basics</div>
+                    <div class="stage-subtitle">Weeks 1-4 | 20-30 hours</div>
+                    <div class="stage-description">
+                        Start your cloud-native journey by understanding containerization and Kubernetes fundamentals. 
+                        Learn core concepts like pods, services, and deployments.
+                    </div>
+
+                    <div class="prerequisites">
+                        <h3><i class="fas fa-check-circle"></i> Prerequisites</h3>
+                        <ul>
+                            <li>Basic Linux command line knowledge</li>
+                            <li>Understanding of Docker containers (basic)</li>
+                            <li>Familiarity with YAML syntax</li>
+                        </ul>
+                    </div>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+
+                    <div class="timeline-info">
+                        <div class="timeline-item">
+                            <i class="fas fa-clock"></i>
+                            <span>20-30 hours</span>
+                        </div>
+                        <div class="timeline-item">
+                            <i class="fas fa-tasks"></i>
+                            <span>5-6 modules</span>
+                        </div>
+                    </div>
+
+                    <div class="stage-cards">
+                        <a href="/cloud-native-blogs/core/getting_started.html" class="learning-card">
+                            <i class="learning-card-icon fas fa-play-circle"></i>
+                            <span class="learning-card-title">Getting Started</span>
+                            <span class="learning-card-desc">Installation & setup</span>
+                        </a>
+                        <a href="/cloud-native-blogs/kubernetes/glossary.html" class="learning-card">
+                            <i class="learning-card-icon fas fa-book"></i>
+                            <span class="learning-card-title">Glossary</span>
+                            <span class="learning-card-desc">100+ K8s terms</span>
+                        </a>
+                        <a href="/cloud-native-blogs/core/best_practices.html" class="learning-card">
+                            <i class="learning-card-icon fas fa-check-double"></i>
+                            <span class="learning-card-title">Best Practices</span>
+                            <span class="learning-card-desc">Industry standards</span>
+                        </a>
+                    </div>
+
+                    <div class="key-skills">
+                        <h4><i class="fas fa-lightbulb"></i> Key Skills to Master</h4>
+                        <div class="skills-list">
+                            <span class="skill-tag">Pod Management</span>
+                            <span class="skill-tag">Deployments</span>
+                            <span class="skill-tag">Services</span>
+                            <span class="skill-tag">ConfigMaps</span>
+                            <span class="skill-tag">Namespaces</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stage 2: Intermediate -->
+            <div class="learning-stage">
+                <div class="stage-indicator">
+                    <div class="stage-badge">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Intermediate</span>
+                    </div>
+                </div>
+                <div class="stage-content">
+                    <div class="stage-title">Advanced: Networking, Storage & Security</div>
+                    <div class="stage-subtitle">Weeks 5-12 | 40-50 hours</div>
+                    <div class="stage-description">
+                        Deepen your knowledge with networking policies, persistent storage, and cluster security. 
+                        Learn to design resilient, production-ready clusters.
+                    </div>
+
+                    <div class="prerequisites">
+                        <h3><i class="fas fa-check-circle"></i> Prerequisites</h3>
+                        <ul>
+                            <li>Completion of Beginner stage</li>
+                            <li>Understanding of RBAC concepts</li>
+                            <li>Basic networking knowledge (DNS, IP, ports)</li>
+                        </ul>
+                    </div>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 50%"></div>
+                    </div>
+
+                    <div class="timeline-info">
+                        <div class="timeline-item">
+                            <i class="fas fa-clock"></i>
+                            <span>40-50 hours</span>
+                        </div>
+                        <div class="timeline-item">
+                            <i class="fas fa-tasks"></i>
+                            <span>8 modules</span>
+                        </div>
+                    </div>
+
+                    <div class="stage-cards">
+                        <a href="/cloud-native-blogs/kubernetes/k8s_security_index.html" class="learning-card">
+                            <i class="learning-card-icon fas fa-shield-alt"></i>
+                            <span class="learning-card-title">Security Index</span>
+                            <span class="learning-card-desc">Hardening & RBAC</span>
+                        </a>
+                        <a href="/cloud-native-blogs/kubernetes/network_policies.html" class="learning-card">
+                            <i class="learning-card-icon fas fa-project-diagram"></i>
+                            <span class="learning-card-title">Network Policies</span>
+                            <span class="learning-card-desc">Pod communication</span>
+                        </a>
+                        <a href="/cloud-native-blogs/architecture/cloud_native_architecture_flowchart.html" class="learning-card">
+                            <i class="learning-card-icon fas fa-diagram"></i>
+                            <span class="learning-card-title">Architecture</span>
+                            <span class="learning-card-desc">Design patterns</span>
+                        </a>
+                    </div>
+
+                    <div class="key-skills">
+                        <h4><i class="fas fa-lightbulb"></i> Key Skills to Master</h4>
+                        <div class="skills-list">
+                            <span class="skill-tag">RBAC</span>
+                            <span class="skill-tag">Network Policies</span>
+                            <span class="skill-tag">Storage Classes</span>
+                            <span class="skill-tag">Pod Security</span>
+                            <span class="skill-tag">Monitoring</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stage 3: Advanced -->
+            <div class="learning-stage">
+                <div class="stage-indicator">
+                    <div class="stage-badge">
+                        <i class="fas fa-rocket"></i>
+                        <span>Expert</span>
+                    </div>
+                </div>
+                <div class="stage-content">
+                    <div class="stage-title">Expert: Cloud-Native & Ecosystem</div>
+                    <div class="stage-subtitle">Weeks 13-20 | 50+ hours</div>
+                    <div class="stage-description">
+                        Master advanced topics including operators, service mesh, CNCF tools, GitOps, and production deployment strategies. 
+                        Design and implement enterprise-grade solutions.
+                    </div>
+
+                    <div class="prerequisites">
+                        <h3><i class="fas fa-check-circle"></i> Prerequisites</h3>
+                        <ul>
+                            <li>Completion of Intermediate stage</li>
+                            <li>Hands-on cluster experience</li>
+                            <li>Understanding of microservices architecture</li>
+                        </ul>
+                    </div>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+
+                    <div class="timeline-info">
+                        <div class="timeline-item">
+                            <i class="fas fa-clock"></i>
+                            <span>50+ hours</span>
+                        </div>
+                        <div class="timeline-item">
+                            <i class="fas fa-tasks"></i>
+                            <span>10+ modules</span>
+                        </div>
+                    </div>
+
+                    <div class="stage-cards">
+                        <a href="/cloud-native-blogs/learning-paths/advanced_topics.html" class="learning-card">
+                            <i class="learning-card-icon fas fa-star"></i>
+                            <span class="learning-card-title">Advanced Topics</span>
+                            <span class="learning-card-desc">Operators & CRDs</span>
+                        </a>
+                        <a href="/cloud-native-blogs/cncf-ecosystem/cncfscope.html" class="learning-card">
+                            <i class="learning-card-icon fas fa-toolbox"></i>
+                            <span class="learning-card-title">CNCF Tools</span>
+                            <span class="learning-card-desc">Ecosystem tools</span>
+                        </a>
+                        <a href="/cloud-native-blogs/learning-paths/interview_prep.html" class="learning-card">
+                            <i class="learning-card-icon fas fa-briefcase"></i>
+                            <span class="learning-card-title">Interview Prep</span>
+                            <span class="learning-card-desc">Job readiness</span>
+                        </a>
+                    </div>
+
+                    <div class="key-skills">
+                        <h4><i class="fas fa-lightbulb"></i> Key Skills to Master</h4>
+                        <div class="skills-list">
+                            <span class="skill-tag">Operators</span>
+                            <span class="skill-tag">Service Mesh</span>
+                            <span class="skill-tag">GitOps</span>
+                            <span class="skill-tag">CI/CD</span>
+                            <span class="skill-tag">Helm</span>
+                            <span class="skill-tag">Multi-cluster</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resources Section -->
+        <div class="resources-section">
+            <h2><i class="fas fa-book"></i> Complete Learning Resources</h2>
+            <div class="resources-grid">
+                <a href="/cloud-native-blogs/kubernetes/glossary.html" class="resource-card">
+                    <div class="resource-icon"><i class="fas fa-book"></i></div>
+                    <div class="resource-title">Glossary</div>
+                    <div class="resource-desc">100+ Kubernetes & CNCF terms with definitions</div>
+                </a>
+                <a href="/cloud-native-blogs/learning-paths/real_world_examples.html" class="resource-card">
+                    <div class="resource-icon"><i class="fas fa-code"></i></div>
+                    <div class="resource-title">Real-World Examples</div>
+                    <div class="resource-desc">Practical implementations and case studies</div>
+                </a>
+                <a href="/cloud-native-blogs/sitemap.html" class="resource-card">
+                    <div class="resource-icon"><i class="fas fa-sitemap"></i></div>
+                    <div class="resource-title">Site Map</div>
+                    <div class="resource-desc">Complete navigation of all resources</div>
+                </a>
+                <a href="/cloud-native-blogs/learning-paths/resources_library.html" class="resource-card">
+                    <div class="resource-icon"><i class="fas fa-library"></i></div>
+                    <div class="resource-title">Resource Library</div>
+                    <div class="resource-desc">Curated tutorials and documentation</div>
+                </a>
+                <a href="/cloud-native-blogs/kubernetes/k8s_security_index.html" class="resource-card">
+                    <div class="resource-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="resource-title">Security Guide</div>
+                    <div class="resource-desc">Comprehensive cluster security guide</div>
+                </a>
+                <a href="/cloud-native-blogs/cloud-strategy/cloud_strategy_hub.html" class="resource-card">
+                    <div class="resource-icon"><i class="fas fa-cloud"></i></div>
+                    <div class="resource-title">Cloud Strategy</div>
+                    <div class="resource-desc">Strategy for cloud deployments</div>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p><i class="fas fa-heart"></i> Built with passion for the Cloud-Native community</p>
+        <p>&copy; 2025 Kubernetes Insights | <a href="https://github.com/ashish02510gh/cloud-native-blogs">GitHub</a> | <a href="https://www.linkedin.com/in/ashish02510/">LinkedIn</a></p>
+    </footer>
+</body>
+</html>

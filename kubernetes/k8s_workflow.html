@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Microservice Workflow | Request Flow Architecture</title>
+    <meta name="description" content="Understand the complete flow of requests in Kubernetes microservice architecture - from DNS resolution through load balancing to pod processing">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,96C1248,75,1344,53,1392,42.7L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.3;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .intro-section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .intro-section h2 {
+            font-size: 1.875rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        section h2 {
+            font-size: 1.875rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        section h3 {
+            font-size: 1.25rem;
+            color: var(--primary-light);
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        section p {
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .code-block {
+            background-color: var(--text-dark);
+            color: #10b981;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            border-left: 4px solid var(--accent);
+        }
+
+        .code-block code {
+            display: block;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        footer p {
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        footer a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 2rem 1rem;
+            }
+
+            header h1 {
+                font-size: 1.875rem;
+            }
+
+            header p {
+                font-size: 1rem;
+            }
+
+            main {
+                padding: 1.5rem 1rem;
+            }
+
+            section {
+                padding: 1.5rem 1rem;
+            }
+
+            section h2 {
+                font-size: 1.5rem;
+            }
+
+            section h3 {
+                font-size: 1.125rem;
+            }
+
+            .code-block {
+                font-size: 0.75rem;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/cloud-native-blogs/index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+        <h1><i class="fas fa-network-wired"></i> Kubernetes Microservice Workflow</h1>
+        <p>Understanding the complete request flow through a Kubernetes cluster</p>
+    </header>
+
+    <main>
+        <section class="intro-section">
+            <h2><i class="fas fa-info-circle"></i> Overview</h2>
+            <p>When a user makes a request to your application in Kubernetes, it travels through multiple layers of networking and orchestration. Understanding this workflow is essential for debugging issues, optimizing performance, and designing resilient architectures.</p>
+        </section>
+
+        <section>
+            <h2><i class="fas fa-step-forward"></i> Step 1: User Sends a Request</h2>
+            <p>The user accesses the application via a URL such as <strong>https://myapp.example.com</strong>.</p>
+            <p>The request travels over the internet to the Kubernetes cluster's endpoint.</p>
+        </section>
+
+        <section>
+            <h2><i class="fas fa-globe"></i> Step 2: DNS Resolves the Domain</h2>
+            <p>The DNS server resolves the domain name <em>(myapp.example.com)</em> into the public IP of the Load Balancer.</p>
+            <p>Tools like Azure DNS, Route 53, or Google Cloud DNS handle this step.</p>
+        </section>
+
+        <section>
+            <h2><i class="fas fa-balance-scale"></i> Step 3: Load Balancer (L4 Routing)</h2>
+            <p>A Layer 4 (L4) Load Balancer forwards traffic based on IP and port.</p>
+            <p>Traffic is sent to the Ingress Controller running inside Kubernetes.</p>
+            <p><strong>Examples:</strong> Azure Load Balancer, AWS ELB, Google Cloud Load Balancer</p>
+        </section>
+
+        <section>
+            <h2><i class="fas fa-server"></i> Step 4: Ingress Controller (L7 Routing)</h2>
+            <p>The Ingress Controller routes traffic based on hostnames, paths, or other HTTP/HTTPS rules.</p>
+            <p>SSL/TLS termination occurs at this layer for secure traffic handling.</p>
+            <p><strong>Examples:</strong> NGINX Ingress Controller, Traefik, Istio Gateway</p>
+            
+            <h3>Ingress Resource Example</h3>
+            <div class="code-block"><code>apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myapp-ingress
+spec:
+  rules:
+  - host: myapp.example.com
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-service
+            port:
+              number: 8080</code></div>
+        </section>
+
+        <section>
+            <h2><i class="fas fa-cube"></i> Step 5: Kubernetes Service</h2>
+            <p>The Service directs traffic to appropriate pods using selectors.</p>
+            <p>Load balancing ensures even traffic distribution across pods.</p>
+            <p><strong>Service types:</strong> ClusterIP, NodePort, LoadBalancer</p>
+            
+            <h3>Service Example</h3>
+            <div class="code-block"><code>apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080</code></div>
+        </section>
+
+        <section>
+            <h2><i class="fas fa-box"></i> Step 6: Pods Process the Request</h2>
+            <p>Pods host the application container and handle the incoming request.</p>
+            <p>If necessary, pods interact with other backend services, like databases or caching layers.</p>
+        </section>
+
+        <section>
+            <h2><i class="fas fa-comments"></i> Step 7: Backend Communication</h2>
+            <p>Microservices communicate using internal DNS or service discovery.</p>
+            <p>Tools like Istio or Linkerd enable advanced communication with retries, traffic shaping, and mTLS.</p>
+        </section>
+
+        <section>
+            <h2><i class="fas fa-reply"></i> Step 8: Response to the User</h2>
+            <p>The response flows back through the layers:</p>
+            <p><strong>Pod → Service → Ingress Controller → Load Balancer → User</strong></p>
+            <p>The user sees the processed result in their browser or client application.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-heart"></i> Built with passion for the Cloud-Native community</p>
+        <p>&copy; 2025 Kubernetes Insights by Sharmaji Cloud Wale | 
+            <a href="https://github.com/ashish02510gh" target="_blank"><i class="fab fa-github"></i> GitHub</a> | 
+            <a href="https://www.linkedin.com/in/ashish02510/" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+        </p>
+    </footer>
+</body>
+</html>

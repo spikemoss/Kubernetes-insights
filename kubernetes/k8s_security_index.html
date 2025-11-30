@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Security Best Practices | Cloud-Native Security Guide</title>
+    <meta name="description" content="Comprehensive guide to securing Kubernetes clusters - RBAC, Image Scanning, Certificates, Network Policies, and more">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Section */
+        header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,96C1248,75,1344,53,1392,42.7L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.3;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .intro-section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--danger);
+        }
+
+        .intro-section h2 {
+            font-size: 1.875rem;
+            color: var(--danger);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .intro-section h2 i {
+            color: var(--danger);
+        }
+
+        .intro-section p {
+            color: var(--text-gray);
+            font-size: 1.125rem;
+            line-height: 1.75;
+        }
+
+        /* Security Stats */
+        .security-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #fef3c7 0%, #ffffff 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border-top: 4px solid var(--warning);
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            color: var(--warning);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-card p {
+            color: var(--text-gray);
+            font-size: 0.875rem;
+        }
+
+        /* Section Headers */
+        .section-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header p {
+            color: var(--text-gray);
+            font-size: 1.125rem;
+        }
+
+        /* Navigation Cards */
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .nav-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--danger);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.1) 0%, transparent 70%);
+            transform: translate(30%, -30%);
+        }
+
+        .nav-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-left-color: var(--warning);
+        }
+
+        .nav-card-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #ef4444, #f59e0b);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-card h3 {
+            font-size: 1.25rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-card p {
+            color: var(--text-gray);
+            font-size: 0.9375rem;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-card a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .badge.critical {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge.important {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge.recommended {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* Best Practices Box */
+        .best-practices {
+            background: linear-gradient(135deg, #dcfce7 0%, #ffffff 100%);
+            border-left: 4px solid var(--success);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 3rem;
+            box-shadow: var(--shadow);
+        }
+
+        .best-practices h3 {
+            color: var(--success);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .best-practices ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .best-practices li {
+            padding: 0.5rem 0;
+            color: var(--text-gray);
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+        }
+
+        .best-practices li i {
+            color: var(--success);
+            margin-top: 0.25rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        footer p {
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        footer a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            header p {
+                font-size: 1rem;
+            }
+
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nav-card {
+            animation: fadeIn 0.6s ease-out backwards;
+        }
+
+        .nav-card:nth-child(1) { animation-delay: 0.1s; }
+        .nav-card:nth-child(2) { animation-delay: 0.2s; }
+        .nav-card:nth-child(3) { animation-delay: 0.3s; }
+        .nav-card:nth-child(4) { animation-delay: 0.4s; }
+        .nav-card:nth-child(5) { animation-delay: 0.5s; }
+        .nav-card:nth-child(6) { animation-delay: 0.6s; }
+        .nav-card:nth-child(7) { animation-delay: 0.7s; }
+        .nav-card:nth-child(8) { animation-delay: 0.8s; }
+        .nav-card:nth-child(9) { animation-delay: 0.9s; }
+        .nav-card:nth-child(10) { animation-delay: 1.0s; }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <a href="/cloud-native-blogs/index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+        <h1><i class="fas fa-shield-alt"></i> Kubernetes Security</h1>
+        <p>Comprehensive Guide to Cloud-Native Security Best Practices</p>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <section class="intro-section">
+            <h2><i class="fas fa-exclamation-triangle"></i> Why Kubernetes Security Matters</h2>
+            <p>
+                Kubernetes security is multi-layered and complex. From securing the control plane to protecting workloads, 
+                certificates, secrets, and network traffic—every layer requires careful attention. A single misconfiguration 
+                can expose your entire cluster to threats. This guide covers all critical security aspects with actionable 
+                best practices and real-world implementations.
+            </p>
+        </section>
+
+        <!-- Security Stats -->
+        <div class="security-stats">
+            <div class="stat-card">
+                <i class="fas fa-bug"></i>
+                <h3>67%</h3>
+                <p>Of breaches involve misconfigurations</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-lock-open"></i>
+                <h3>80%</h3>
+                <p>Of clusters have exposed secrets</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-users-slash"></i>
+                <h3>75%</h3>
+                <p>Lack proper RBAC policies</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-network-wired"></i>
+                <h3>60%</h3>
+                <p>Don't use network policies</p>
+            </div>
+        </div>
+
+        <!-- Section Header -->
+        <div class="section-header">
+            <h2>Security Domains</h2>
+            <p>Explore detailed guides for each security aspect of your Kubernetes cluster</p>
+        </div>
+
+        <!-- Navigation Cards Grid -->
+        <div class="nav-grid">
+            <!-- RBAC -->
+            <div class="nav-card">
+                <a href="#rbac-section">
+                    <div class="nav-card-icon"><i class="fas fa-user-lock"></i></div>
+                    <h3>RBAC & Access Control</h3>
+                    <p>Implement Role-Based Access Control to restrict cluster access. Define granular permissions for users, service accounts, and workloads.</p>
+                    <span class="badge critical">CRITICAL</span>
+                </a>
+            </div>
+
+            <!-- Image Security -->
+            <div class="nav-card">
+                <!-- <a href="cloud-native-blogs/image_scanning.html"> -->
+                    <div class="nav-card-icon"><i class="fas fa-microscope"></i></div>
+                    <h3>Image Scanning & Registry Security</h3>
+                    <p>Scan container images for vulnerabilities. Implement image signing, trusted registries, and admission controllers.</p>
+                    <span class="badge critical">CRITICAL</span>
+                </a>
+            </div>
+
+            <!-- Certificate Management -->
+            <div class="nav-card">
+                <a href="certificate_management.html">
+                    <div class="nav-card-icon"><i class="fas fa-certificate"></i></div>
+                    <h3>Certificate Management</h3>
+                    <p>Manage TLS certificates, certificate rotation, and PKI infrastructure. Secure communication between cluster components.</p>
+                    <span class="badge important">IMPORTANT</span>
+                </a>
+            </div>
+
+            <!-- Secrets Management -->
+            <div class="nav-card">
+                <a href="secrets_management.html">
+                    <div class="nav-card-icon"><i class="fas fa-key"></i></div>
+                    <h3>Secrets & Token Management</h3>
+                    <p>Encrypt secrets at rest, use external secret stores (Vault, AWS Secrets Manager), and implement secure token handling.</p>
+                    <span class="badge critical">CRITICAL</span>
+                </a>
+            </div>
+
+            <!-- Network Policies -->
+            <div class="nav-card">
+                <a href="network_policies.html">
+                    <div class="nav-card-icon"><i class="fas fa-project-diagram"></i></div>
+                    <h3>Network Policies</h3>
+                    <p>Control pod-to-pod communication, implement zero-trust networking, and use service mesh for advanced traffic management.</p>
+                    <span class="badge important">IMPORTANT</span>
+                </a>
+            </div>
+
+            <!-- Pod Security -->
+            <div class="nav-card">
+                <a href="pod_security.html">
+                    <div class="nav-card-icon"><i class="fas fa-cube"></i></div>
+                    <h3>Pod Security Standards</h3>
+                    <p>Implement Pod Security Standards (PSS), security contexts, and admission policies to restrict pod privileges.</p>
+                    <span class="badge critical">CRITICAL</span>
+                </a>
+            </div>
+
+            <!-- API Server Security -->
+            <div class="nav-card">
+                <a href="api_server_security.html">
+                    <div class="nav-card-icon"><i class="fas fa-server"></i></div>
+                    <h3>API Server Hardening</h3>
+                    <p>Secure the Kubernetes API server with authentication, authorization, admission controllers, and audit logging.</p>
+                    <span class="badge important">IMPORTANT</span>
+                </a>
+            </div>
+
+            <!-- etcd Security -->
+            <div class="nav-card">
+                <a href="etcd_security.html">
+                    <div class="nav-card-icon"><i class="fas fa-database"></i></div>
+                    <h3>etcd Encryption & Backup</h3>
+                    <p>Encrypt etcd data at rest, secure peer communication, implement backup strategies, and disaster recovery plans.</p>
+                    <span class="badge critical">CRITICAL</span>
+                </a>
+            </div>
+
+            <!-- Audit Logging -->
+            <div class="nav-card">
+                <a href="audit_logging_monitoring.html">
+                    <div class="nav-card-icon"><i class="fas fa-clipboard-list"></i></div>
+                    <h3>Audit Logging & Monitoring</h3>
+                    <p>Enable comprehensive audit logs, implement monitoring with Falco, track suspicious activities, and set up alerts.</p>
+                    <span class="badge recommended">RECOMMENDED</span>
+                </a>
+            </div>
+
+            <!-- Runtime Security -->
+            <div class="nav-card">
+                <a href="audit_logging_monitoring.html#runtime">
+                    <div class="nav-card-icon"><i class="fas fa-eye"></i></div>
+                    <h3>Runtime Security & Threat Detection</h3>
+                    <p>Detect and respond to runtime threats with tools like Falco, Sysdig, and eBPF-based monitoring solutions.</p>
+                    <span class="badge recommended">RECOMMENDED</span>
+                </a>
+            </div>
+
+            <!-- Compliance -->
+            <div class="nav-card">
+                <a href="compliance_standards.html">
+                    <div class="nav-card-icon"><i class="fas fa-balance-scale"></i></div>
+                    <h3>Compliance & Standards</h3>
+                    <p>Meet industry standards (CIS Benchmarks, PCI-DSS, HIPAA, SOC 2) and implement compliance automation.</p>
+                    <span class="badge recommended">RECOMMENDED</span>
+                </a>
+            </div>
+
+            <!-- Supply Chain Security -->
+            <div class="nav-card">
+                <a href="supply_chain_security.html">
+                    <div class="nav-card-icon"><i class="fas fa-link"></i></div>
+                    <h3>Supply Chain Security</h3>
+                    <p>Secure your CI/CD pipelines, implement SBOM, use Sigstore for signing, and verify artifact provenance.</p>
+                    <span class="badge important">IMPORTANT</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Best Practices -->
+        <div class="best-practices">
+            <h3><i class="fas fa-check-circle"></i> Security Best Practices Quick Checklist</h3>
+            <ul>
+                <li><i class="fas fa-check"></i> Enable RBAC and follow the principle of least privilege</li>
+                <li><i class="fas fa-check"></i> Encrypt secrets at rest using KMS or external secret stores</li>
+                <li><i class="fas fa-check"></i> Scan container images for vulnerabilities before deployment</li>
+                <li><i class="fas fa-check"></i> Implement Network Policies to restrict pod communication</li>
+                <li><i class="fas fa-check"></i> Use Pod Security Standards to prevent privileged containers</li>
+                <li><i class="fas fa-check"></i> Enable audit logging for all API server requests</li>
+                <li><i class="fas fa-check"></i> Regularly rotate certificates and credentials</li>
+                <li><i class="fas fa-check"></i> Keep Kubernetes and all components up to date</li>
+                <li><i class="fas fa-check"></i> Use service mesh for mTLS and advanced traffic control</li>
+                <li><i class="fas fa-check"></i> Implement runtime security monitoring with Falco or similar tools</li>
+                <li><i class="fas fa-check"></i> Backup etcd regularly and test disaster recovery procedures</li>
+                <li><i class="fas fa-check"></i> Conduct regular security audits and penetration testing</li>
+            </ul>
+        </div>
+
+        <!-- RBAC Detailed Section -->
+        <div id="rbac-section" class="intro-section" style="margin-top: 3rem;">
+            <h2><i class="fas fa-user-lock"></i> Role-Based Access Control (RBAC) - Detailed Guide</h2>
+            <p>
+                RBAC is a critical security mechanism in Kubernetes that allows you to control who can access what resources and perform which actions. 
+                This section provides a comprehensive guide to implementing RBAC in your cluster.
+            </p>
+        </div>
+
+        <!-- RBAC Steps -->
+        <div class="nav-grid" style="margin-top: 2rem;">
+            <div class="nav-card">
+                <div class="nav-card-icon"><i class="fas fa-users"></i></div>
+                <h3>1. Define Roles & Responsibilities</h3>
+                <p>
+                    • Identify teams and projects<br>
+                    • Specify access requirements for resources (Pods, Deployments, ConfigMaps)<br>
+                    • Group permissions into roles (developer, admin, viewer)
+                </p>
+            </div>
+
+            <div class="nav-card">
+                <div class="nav-card-icon"><i class="fas fa-boxes"></i></div>
+                <h3>2. Use Namespaces for Isolation</h3>
+                <p>
+                    • Create separate namespaces for each team/project<br>
+                    • Assign namespace-specific roles using Role and RoleBinding<br>
+                    • Isolate resources and access by default
+                </p>
+            </div>
+
+            <div class="nav-card">
+                <div class="nav-card-icon"><i class="fas fa-robot"></i></div>
+                <h3>3. Create Service Accounts</h3>
+                <p>
+                    • Assign service accounts to applications<br>
+                    • Create within relevant namespaces<br>
+                    • Better management and security tracking
+                </p>
+            </div>
+
+            <div class="nav-card">
+                <div class="nav-card-icon"><i class="fas fa-certificate"></i></div>
+                <h3>4. Define Roles & ClusterRoles</h3>
+                <p>
+                    • Use Role for namespace-scoped permissions<br>
+                    • Use ClusterRole for cluster-wide permissions<br>
+                    • Follow principle of least privilege
+                </p>
+            </div>
+
+            <div class="nav-card">
+                <div class="nav-card-icon"><i class="fas fa-link"></i></div>
+                <h3>5. Bind Roles to Users</h3>
+                <p>
+                    • Use RoleBinding for namespace assignments<br>
+                    • Use ClusterRoleBinding for cluster-wide roles<br>
+                    • Map subjects to roles explicitly
+                </p>
+            </div>
+
+            <div class="nav-card">
+                <div class="nav-card-icon"><i class="fas fa-shield"></i></div>
+                <h3>6. Implement Least Privilege</h3>
+                <p>
+                    • Grant only necessary permissions<br>
+                    • Periodically review and audit permissions<br>
+                    • Align with current business needs
+                </p>
+            </div>
+        </div>
+
+        <!-- RBAC Code Examples -->
+        <div class="intro-section" style="margin-top: 3rem;">
+            <h2><i class="fas fa-code"></i> RBAC YAML Configuration Examples</h2>
+        </div>
+
+        <div class="best-practices" style="background: linear-gradient(135deg, #dbeafe 0%, #ffffff 100%); border-left-color: var(--primary);">
+            <h3><i class="fas fa-code"></i> Developer Role (Namespace-Scoped)</h3>
+            <p style="font-family: 'JetBrains Mono', monospace; background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-top: 1rem;">
+apiVersion: rbac.authorization.k8s.io/v1<br>
+kind: Role<br>
+metadata:<br>
+&nbsp;&nbsp;namespace: dev-team<br>
+&nbsp;&nbsp;name: developer-role<br>
+rules:<br>
+- apiGroups: [""]<br>
+&nbsp;&nbsp;resources: ["pods", "services", "configmaps"]<br>
+&nbsp;&nbsp;verbs: ["get", "list", "create", "update", "delete"]<br>
+- apiGroups: ["apps"]<br>
+&nbsp;&nbsp;resources: ["deployments", "statefulsets"]<br>
+&nbsp;&nbsp;verbs: ["get", "list", "create", "update"]
+            </p>
+        </div>
+
+        <div class="best-practices" style="background: linear-gradient(135deg, #fef3c7 0%, #ffffff 100%); border-left-color: var(--warning);">
+            <h3><i class="fas fa-link"></i> RoleBinding for Developer Group</h3>
+            <p style="font-family: 'JetBrains Mono', monospace; background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-top: 1rem;">
+apiVersion: rbac.authorization.k8s.io/v1<br>
+kind: RoleBinding<br>
+metadata:<br>
+&nbsp;&nbsp;namespace: dev-team<br>
+&nbsp;&nbsp;name: developer-binding<br>
+subjects:<br>
+- kind: Group<br>
+&nbsp;&nbsp;name: dev-team-group<br>
+&nbsp;&nbsp;apiGroup: rbac.authorization.k8s.io<br>
+roleRef:<br>
+&nbsp;&nbsp;kind: Role<br>
+&nbsp;&nbsp;name: developer-role<br>
+&nbsp;&nbsp;apiGroup: rbac.authorization.k8s.io
+            </p>
+        </div>
+
+        <div class="best-practices" style="background: linear-gradient(135deg, #dcfce7 0%, #ffffff 100%); border-left-color: var(--success);">
+            <h3><i class="fas fa-crown"></i> ClusterRole for Admins (Cluster-Wide)</h3>
+            <p style="font-family: 'JetBrains Mono', monospace; background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-top: 1rem;">
+apiVersion: rbac.authorization.k8s.io/v1<br>
+kind: ClusterRole<br>
+metadata:<br>
+&nbsp;&nbsp;name: cluster-admin-role<br>
+rules:<br>
+- apiGroups: ["*"]<br>
+&nbsp;&nbsp;resources: ["*"]<br>
+&nbsp;&nbsp;verbs: ["*"]
+            </p>
+        </div>
+
+        <div class="best-practices" style="background: linear-gradient(135deg, #f3e8ff 0%, #ffffff 100%); border-left-color: #a855f7;">
+            <h3><i class="fas fa-robot"></i> ServiceAccount for Applications</h3>
+            <p style="font-family: 'JetBrains Mono', monospace; background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-top: 1rem;">
+apiVersion: v1<br>
+kind: ServiceAccount<br>
+metadata:<br>
+&nbsp;&nbsp;name: app-service-account<br>
+&nbsp;&nbsp;namespace: dev-team<br>
+---<br>
+apiVersion: rbac.authorization.k8s.io/v1<br>
+kind: Role<br>
+metadata:<br>
+&nbsp;&nbsp;namespace: dev-team<br>
+&nbsp;&nbsp;name: app-reader<br>
+rules:<br>
+- apiGroups: [""]<br>
+&nbsp;&nbsp;resources: ["configmaps", "secrets"]<br>
+&nbsp;&nbsp;verbs: ["get", "list"]<br>
+---<br>
+apiVersion: rbac.authorization.k8s.io/v1<br>
+kind: RoleBinding<br>
+metadata:<br>
+&nbsp;&nbsp;namespace: dev-team<br>
+&nbsp;&nbsp;name: app-reader-binding<br>
+subjects:<br>
+- kind: ServiceAccount<br>
+&nbsp;&nbsp;name: app-service-account<br>
+&nbsp;&nbsp;namespace: dev-team<br>
+roleRef:<br>
+&nbsp;&nbsp;kind: Role<br>
+&nbsp;&nbsp;name: app-reader<br>
+&nbsp;&nbsp;apiGroup: rbac.authorization.k8s.io
+            </p>
+        </div>
+
+        <!-- RBAC Best Practices -->
+        <div class="best-practices" style="margin-top: 3rem;">
+            <h3><i class="fas fa-lightbulb"></i> RBAC Best Practices & Tips</h3>
+            <ul>
+                <li><i class="fas fa-check"></i> Always start with the principle of least privilege</li>
+                <li><i class="fas fa-check"></i> Use namespaces to logically separate and isolate workloads</li>
+                <li><i class="fas fa-check"></i> Create roles specifically for your use cases—don't use cluster-admin for everything</li>
+                <li><i class="fas fa-check"></i> Regularly audit RBAC policies and remove unnecessary permissions</li>
+                <li><i class="fas fa-check"></i> Use service accounts for pod-to-pod authentication</li>
+                <li><i class="fas fa-check"></i> Implement group-based access controls for easier management</li>
+                <li><i class="fas fa-check"></i> Monitor and log all RBAC-related API requests using audit logging</li>
+                <li><i class="fas fa-check"></i> Test RBAC policies in a staging environment before production deployment</li>
+                <li><i class="fas fa-check"></i> Use tools like kubectl-who-can to audit permissions</li>
+                <li><i class="fas fa-check"></i> Document all roles and bindings for compliance and reference</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- Footer Section -->
+    <footer>
+        <p><i class="fas fa-shield-alt"></i> Stay Secure, Stay Vigilant</p>
+        <p>&copy; 2025 Kubernetes Insights by Sharmaji Cloud Wale | 
+            <a href="https://github.com/ashish02510gh" target="_blank"><i class="fab fa-github"></i> GitHub</a> | 
+            <a href="https://linkedin.com/in/yourprofile" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+        </p>
+    </footer>
+</body>
+</html>
+

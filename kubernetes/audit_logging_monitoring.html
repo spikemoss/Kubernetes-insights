@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Logging & Monitoring | Kubernetes Security</title>
+    <meta name="description" content="Kubernetes audit logging, Falco monitoring, threat detection, and security observability in clusters">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root { --primary: #1e40af; --primary-light: #3b82f6; --accent: #06b6d4; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --bg-light: #f8fafc; --bg-card: #ffffff; --text-dark: #0f172a; --text-gray: #64748b; --border: #e2e8f0; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1); --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%); color: var(--text-dark); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
+        header { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 3rem 2rem; text-align: center; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
+        header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,96C1248,75,1344,53,1392,42.7L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom; background-size: cover; opacity: 0.3; }
+        .back-link { display: inline-flex; align-items: center; gap: 0.5rem; color: white; text-decoration: none; margin-bottom: 1.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px; transition: all 0.3s; position: relative; z-index: 1; }
+        .back-link:hover { background: rgba(255,255,255,0.3); }
+        header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; position: relative; z-index: 1; }
+        header p { font-size: 1.125rem; opacity: 0.95; position: relative; z-index: 1; }
+        main { flex: 1; max-width: 1000px; width: 100%; margin: 0 auto; padding: 3rem 2rem; }
+        .intro-section { background: var(--bg-card); padding: 2rem; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 2rem; }
+        .intro-section h2 { font-size: 1.875rem; color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem; }
+        .intro-section h3 { font-size: 1.375rem; color: var(--primary); margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .intro-section p { color: var(--text-gray); font-size: 1rem; line-height: 1.75; margin-bottom: 1rem; }
+        .intro-section ul { color: var(--text-gray); margin-left: 2rem; margin-bottom: 1rem; }
+        .intro-section li { margin-bottom: 0.5rem; line-height: 1.75; }
+        .code-block { background: #1e1e1e; color: #d4d4d4; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6; border-left: 4px solid var(--accent); }
+        .info-box { background: #dbeafe; border-left: 4px solid var(--primary); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; }
+        .success-box { background: #dcfce7; border-left: 4px solid var(--success); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; }
+        footer { background: var(--text-dark); color: white; padding: 2rem; text-align: center; margin-top: auto; }
+        footer a { color: var(--accent); text-decoration: none; }
+        @media (max-width: 768px) { header h1 { font-size: 2rem; } main { padding: 2rem 1rem; } }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/cloud-native-blogs/kubernetes/k8s_security_index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Security Guide
+        </a>
+        <h1><i class="fas fa-clipboard-list"></i> Audit Logging & Monitoring</h1>
+        <p>Detecting and Responding to Security Threats in Real-Time</p>
+    </header>
+
+    <main>
+        <section class="intro-section">
+            <h2><i class="fas fa-shield-alt"></i> Audit Logging & Monitoring Overview</h2>
+            <p>
+                Comprehensive logging and monitoring are essential for detecting and responding to security incidents. 
+                API audit logs track all cluster operations, while tools like Falco provide runtime security monitoring. 
+                Together, they create a complete visibility layer for your cluster.
+            </p>
+            <div class="info-box">
+                <strong>💡 Key Insight:</strong> Logging without monitoring is useless. You must actively monitor 
+                logs for suspicious activity and alert on anomalies.
+            </div>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-book"></i> Kubernetes Audit Logging</h2>
+
+            <h3>Audit Log Levels</h3>
+            <ul>
+                <li><strong>None:</strong> Don't log requests matching this rule</li>
+                <li><strong>Metadata:</strong> Log request metadata (user, timestamp, resource)</li>
+                <li><strong>Request:</strong> Log metadata and request body</li>
+                <li><strong>RequestResponse:</strong> Log metadata, request, and response body</li>
+            </ul>
+
+            <h3>Sample Audit Policy</h3>
+            <div class="code-block">
+apiVersion: audit.k8s.io/v1
+kind: Policy
+rules:
+# Log all requests at Metadata level
+- level: Metadata
+  omitStages:
+  - RequestReceived
+
+# Log pod exec commands at RequestResponse
+- level: RequestResponse
+  resources:
+  - group: ""
+    resources: ["pods/exec"]
+
+# Log secret access
+- level: RequestResponse
+  resources:
+  - group: ""
+    resources: ["secrets"]
+            </div>
+
+            <h3>Enable Audit Logging on API Server</h3>
+            <div class="code-block">
+--audit-log-path=/var/log/kubernetes/audit.log
+--audit-log-maxage=30
+--audit-log-maxsize=100
+--audit-policy-file=/etc/kubernetes/audit-policy.yaml
+            </div>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-eye"></i> Runtime Security with Falco</h2>
+
+            <h3>Falco Overview</h3>
+            <p>Falco is a runtime security tool that detects suspicious process, network, and file activity:</p>
+            <ul>
+                <li>Real-time threat detection</li>
+                <li>eBPF-based kernel monitoring</li>
+                <li>Built-in security rules</li>
+                <li>Low performance overhead</li>
+            </ul>
+
+            <h3>Install Falco</h3>
+            <div class="code-block">
+helm repo add falcosecurity https://falcosecurity.github.io/charts
+helm install falco falcosecurity/falco \
+  --namespace falco --create-namespace \
+  --set falco.grpc.enabled=true
+            </div>
+
+            <h3>Common Falco Rules</h3>
+            <ul>
+                <li>Write below root files</li>
+                <li>Launch shell in container</li>
+                <li>Unauthorized process</li>
+                <li>Sensitive file access</li>
+                <li>Network anomalies</li>
+            </ul>
+
+            <div class="success-box">
+                <strong>✓ Best Practice:</strong> Combine Falco with SIEM (Splunk, ELK) for centralized 
+                threat detection and response.
+            </div>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-bell"></i> Alerting & Response</h2>
+
+            <h3>Set Up Alerting</h3>
+            <ul>
+                <li><strong>Prometheus + Alertmanager:</strong> Alert on metrics</li>
+                <li><strong>ELK Stack:</strong> Alert on log patterns</li>
+                <li><strong>SIEM:</strong> Centralized alerting</li>
+                <li><strong>Webhooks:</strong> Send alerts to Slack, PagerDuty, etc.</li>
+            </ul>
+
+            <h3>Incident Response Playbook</h3>
+            <div class="code-block">
+1. Alert triggered (Falco/audit log)
+2. Investigation (check logs, processes, network)
+3. Containment (isolate pod, preserve evidence)
+4. Analysis (understand attack)
+5. Recovery (remediate, restore)
+6. Post-incident (update rules, improve detection)
+            </div>
+
+            <h3>Example Alert Rules</h3>
+            <ul>
+                <li>Unauthorized API access attempts</li>
+                <li>Suspicious process execution in container</li>
+                <li>Network connections to suspicious IPs</li>
+                <li>Privilege escalation attempts</li>
+                <li>Credential access patterns</li>
+            </ul>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-check-circle"></i> Monitoring Best Practices</h2>
+            <ul>
+                <li><strong>Centralize Logs:</strong> Use ELK, Splunk, or cloud native solutions</li>
+                <li><strong>Long Retention:</strong> Keep audit logs for 30+ days</li>
+                <li><strong>Real-Time Analysis:</strong> Monitor for threats in real-time</li>
+                <li><strong>Alerting:</strong> Alert on critical security events</li>
+                <li><strong>Regular Review:</strong> Review logs weekly for anomalies</li>
+                <li><strong>Compliance:</strong> Ensure logs meet regulatory requirements</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-heart"></i> Built with passion for the Cloud-Native community</p>
+        <p>&copy; 2025 Kubernetes Insights</p>
+    </footer>
+</body>
+</html>

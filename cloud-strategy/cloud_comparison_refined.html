@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Cloud Terminology Comparison | Azure vs AWS vs GCP</title>
+    <meta name="description" content="Complete comparison of cloud services terminology across Azure, AWS, Google Cloud, and Open Source">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --azure: #0078d4;
+            --aws: #ff9900;
+            --gcp: #4285f4;
+            --opensource: #10b981;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+            color: var(--text-dark);
+            line-height: 1.7;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 3rem auto;
+            padding: 0 2rem 3rem;
+        }
+
+        .intro-section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .intro-section h2 {
+            color: var(--primary);
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cloud-providers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .provider-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .provider-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .provider-card.azure {
+            border-top: 4px solid var(--azure);
+        }
+
+        .provider-card.aws {
+            border-top: 4px solid var(--aws);
+        }
+
+        .provider-card.gcp {
+            border-top: 4px solid var(--gcp);
+        }
+
+        .provider-card.opensource {
+            border-top: 4px solid var(--opensource);
+        }
+
+        .provider-card i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .provider-card.azure i { color: var(--azure); }
+        .provider-card.aws i { color: var(--aws); }
+        .provider-card.gcp i { color: var(--gcp); }
+        .provider-card.opensource i { color: var(--opensource); }
+
+        .provider-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .comparison-table-wrapper {
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 1.5rem 2rem;
+        }
+
+        .table-header h2 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 60px;
+            z-index: 10;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody tr:hover {
+            background: var(--bg-light);
+        }
+
+        .category-cell {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .azure-cell { color: var(--azure); font-weight: 500; }
+        .aws-cell { color: var(--aws); font-weight: 500; }
+        .gcp-cell { color: var(--gcp); font-weight: 500; }
+        .opensource-cell { color: var(--opensource); font-weight: 500; }
+
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.5rem; }
+            main { padding: 0 1rem 2rem; }
+
+            table {
+                font-size: 0.875rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="../index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+            <h1><i class="fas fa-cloud"></i> Multi-Cloud Terminology Comparison</h1>
+            <p>Complete reference guide for cloud services across Azure, AWS, GCP, and Open Source</p>
+        </div>
+    </header>
+
+    <main>
+        <section class="intro-section">
+            <h2><i class="fas fa-info-circle"></i> Why This Comparison Matters</h2>
+            <p>
+                Each cloud provider uses different terminology for similar services. This comprehensive comparison 
+                helps you quickly understand equivalent services across Azure, AWS, Google Cloud, and open-source 
+                alternatives—essential for multi-cloud strategies and migrations.
+            </p>
+        </section>
+
+        <div class="cloud-providers">
+            <div class="provider-card azure">
+                <i class="fab fa-microsoft"></i>
+                <h3>Microsoft Azure</h3>
+                <p>Enterprise cloud platform</p>
+            </div>
+            <div class="provider-card aws">
+                <i class="fab fa-aws"></i>
+                <h3>Amazon AWS</h3>
+                <p>Market leader in cloud</p>
+            </div>
+            <div class="provider-card gcp">
+                <i class="fab fa-google"></i>
+                <h3>Google Cloud</h3>
+                <p>Innovation-focused platform</p>
+            </div>
+            <div class="provider-card opensource">
+                <i class="fab fa-osi"></i>
+                <h3>Open Source</h3>
+                <p>Community-driven tools</p>
+            </div>
+        </div>
+
+        <div class="comparison-table-wrapper">
+            <div class="table-header">
+                <h2><i class="fas fa-table"></i> Service Comparison Matrix</h2>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th><i class="fab fa-microsoft"></i> Azure</th>
+                        <th><i class="fab fa-aws"></i> AWS</th>
+                        <th><i class="fab fa-google"></i> Google Cloud</th>
+                        <th><i class="fab fa-osi"></i> Open Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="category-cell">Networking</td>
+                        <td class="azure-cell">Virtual Network (VNet)</td>
+                        <td class="aws-cell">Virtual Private Cloud (VPC)</td>
+                        <td class="gcp-cell">Virtual Private Cloud (VPC)</td>
+                        <td class="opensource-cell">OpenStack Neutron</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Compute</td>
+                        <td class="azure-cell">Virtual Machines (VM)</td>
+                        <td class="aws-cell">EC2 (Elastic Compute Cloud)</td>
+                        <td class="gcp-cell">Compute Engine</td>
+                        <td class="opensource-cell">OpenStack Nova, KVM</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Container Orchestration</td>
+                        <td class="azure-cell">Azure Kubernetes Service (AKS)</td>
+                        <td class="aws-cell">Elastic Kubernetes Service (EKS)</td>
+                        <td class="gcp-cell">Google Kubernetes Engine (GKE)</td>
+                        <td class="opensource-cell">Kubernetes, K3s, Rancher</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Container Registry</td>
+                        <td class="azure-cell">Azure Container Registry (ACR)</td>
+                        <td class="aws-cell">Elastic Container Registry (ECR)</td>
+                        <td class="gcp-cell">Container Registry / Artifact Registry</td>
+                        <td class="opensource-cell">Harbor, Quay, Docker Registry</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Object Storage</td>
+                        <td class="azure-cell">Blob Storage</td>
+                        <td class="aws-cell">S3 (Simple Storage Service)</td>
+                        <td class="gcp-cell">Cloud Storage</td>
+                        <td class="opensource-cell">MinIO, Ceph, OpenStack Swift</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Block Storage</td>
+                        <td class="azure-cell">Managed Disks</td>
+                        <td class="aws-cell">EBS (Elastic Block Store)</td>
+                        <td class="gcp-cell">Persistent Disk</td>
+                        <td class="opensource-cell">Ceph RBD, Longhorn</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">File Storage</td>
+                        <td class="azure-cell">Azure Files</td>
+                        <td class="aws-cell">EFS (Elastic File System)</td>
+                        <td class="gcp-cell">Filestore</td>
+                        <td class="opensource-cell">NFS, GlusterFS, CephFS</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Database (SQL)</td>
+                        <td class="azure-cell">Azure SQL Database</td>
+                        <td class="aws-cell">RDS (Relational Database Service)</td>
+                        <td class="gcp-cell">Cloud SQL</td>
+                        <td class="opensource-cell">PostgreSQL, MySQL, MariaDB</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Database (NoSQL)</td>
+                        <td class="azure-cell">Cosmos DB</td>
+                        <td class="aws-cell">DynamoDB</td>
+                        <td class="gcp-cell">Firestore, Bigtable</td>
+                        <td class="opensource-cell">MongoDB, Cassandra, Redis</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Load Balancer</td>
+                        <td class="azure-cell">Azure Load Balancer</td>
+                        <td class="aws-cell">Elastic Load Balancer (ELB)</td>
+                        <td class="gcp-cell">Cloud Load Balancing</td>
+                        <td class="opensource-cell">HAProxy, NGINX, Traefik</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">DNS</td>
+                        <td class="azure-cell">Azure DNS</td>
+                        <td class="aws-cell">Route 53</td>
+                        <td class="gcp-cell">Cloud DNS</td>
+                        <td class="opensource-cell">CoreDNS, BIND, PowerDNS</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">CDN</td>
+                        <td class="azure-cell">Azure CDN</td>
+                        <td class="aws-cell">CloudFront</td>
+                        <td class="gcp-cell">Cloud CDN</td>
+                        <td class="opensource-cell">Varnish, Apache Traffic Server</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Identity & Access</td>
+                        <td class="azure-cell">Azure Active Directory (Entra ID)</td>
+                        <td class="aws-cell">IAM (Identity and Access Management)</td>
+                        <td class="gcp-cell">Cloud IAM</td>
+                        <td class="opensource-cell">Keycloak, FreeIPA, OpenLDAP</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Secrets Management</td>
+                        <td class="azure-cell">Azure Key Vault</td>
+                        <td class="aws-cell">AWS Secrets Manager</td>
+                        <td class="gcp-cell">Secret Manager</td>
+                        <td class="opensource-cell">HashiCorp Vault, Sealed Secrets</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Monitoring</td>
+                        <td class="azure-cell">Azure Monitor</td>
+                        <td class="aws-cell">CloudWatch</td>
+                        <td class="gcp-cell">Cloud Monitoring</td>
+                        <td class="opensource-cell">Prometheus, Grafana</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Logging</td>
+                        <td class="azure-cell">Log Analytics</td>
+                        <td class="aws-cell">CloudWatch Logs</td>
+                        <td class="gcp-cell">Cloud Logging</td>
+                        <td class="opensource-cell">ELK Stack, Loki, Fluentd</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">CI/CD</td>
+                        <td class="azure-cell">Azure DevOps, Azure Pipelines</td>
+                        <td class="aws-cell">CodePipeline, CodeBuild</td>
+                        <td class="gcp-cell">Cloud Build</td>
+                        <td class="opensource-cell">Jenkins, GitLab CI, Argo CD</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Service Mesh</td>
+                        <td class="azure-cell">Azure Service Mesh (Istio)</td>
+                        <td class="aws-cell">AWS App Mesh</td>
+                        <td class="gcp-cell">Anthos Service Mesh</td>
+                        <td class="opensource-cell">Istio, Linkerd, Consul</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">API Gateway</td>
+                        <td class="azure-cell">Azure API Management</td>
+                        <td class="aws-cell">API Gateway</td>
+                        <td class="gcp-cell">Apigee, Cloud Endpoints</td>
+                        <td class="opensource-cell">Kong, Tyk, Ambassador</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Message Queue</td>
+                        <td class="azure-cell">Service Bus, Event Hubs</td>
+                        <td class="aws-cell">SQS, SNS, Kinesis</td>
+                        <td class="gcp-cell">Pub/Sub</td>
+                        <td class="opensource-cell">RabbitMQ, Kafka, NATS</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-heart"></i> Created by Sharmaji Cloud Wale</p>
+        <p>&copy; 2025 Kubernetes Insights | <a href="https://github.com/ashish02510gh" target="_blank"><i class="fab fa-github"></i> GitHub</a></p>
+    </footer>
+</body>
+</html>
+

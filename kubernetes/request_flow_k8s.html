@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Flow in Kubernetes | Enterprise Web Application Journey</title>
+    <meta name="description" content="Visual guide showing how HTTP requests flow through enterprise Kubernetes infrastructure from user to pod and back">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+            color: var(--text-dark);
+            line-height: 1.7;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem 3rem;
+        }
+
+        .intro-section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .intro-section h2 {
+            color: var(--primary);
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Flow Steps */
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .flow-step {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            transition: all 0.3s;
+            border-left: 4px solid var(--accent);
+        }
+
+        .flow-step:hover {
+            transform: translateX(8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .flow-step.outbound {
+            border-left-color: var(--success);
+        }
+
+        .flow-step.inbound {
+            border-left-color: var(--warning);
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-number {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .step-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #e0f2fe, #dbeafe);
+            color: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .step-title {
+            flex: 1;
+        }
+
+        .step-title h3 {
+            color: var(--text-dark);
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-title .component {
+            color: var(--text-gray);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .step-description {
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .step-details {
+            background: var(--bg-light);
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9375rem;
+        }
+
+        .step-details ul {
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .step-details li {
+            margin-bottom: 0.5rem;
+            color: var(--text-gray);
+        }
+
+        /* Arrow between steps */
+        .flow-arrow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 40px;
+            position: relative;
+        }
+
+        .flow-arrow i {
+            font-size: 2rem;
+            color: var(--accent);
+            animation: bounce 2s infinite;
+        }
+
+        .flow-arrow.return i {
+            transform: rotate(180deg);
+            color: var(--success);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+
+        /* Section Divider */
+        .section-divider {
+            background: linear-gradient(135deg, var(--warning), #f59e0b);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.125rem;
+            margin: 2rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .section-divider i {
+            margin-right: 0.5rem;
+        }
+
+        /* Tech Stack Card */
+        .tech-stack {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-top: 2rem;
+        }
+
+        .tech-stack h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .tech-item {
+            background: var(--bg-light);
+            padding: 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .tech-item i {
+            font-size: 2rem;
+            color: var(--accent);
+        }
+
+        .tech-item strong {
+            color: var(--text-dark);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .tech-item span {
+            color: var(--text-gray);
+            font-size: 0.875rem;
+        }
+
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.5rem; }
+            main { padding: 0 1rem 2rem; }
+            .flow-step { padding: 1rem; }
+            .step-number { width: 40px; height: 40px; font-size: 1rem; }
+            .step-icon { width: 40px; height: 40px; font-size: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="/cloud-native-blogs/index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+            <h1><i class="fas fa-route"></i> Request Flow in Kubernetes</h1>
+            <p>Complete journey of an HTTP request through enterprise cloud infrastructure</p>
+        </div>
+    </header>
+
+    <main>
+        <section class="intro-section">
+            <h2><i class="fas fa-info-circle"></i> Understanding the Request Journey</h2>
+            <p>
+                When a user accesses your web application hosted on Kubernetes, the request travels through multiple 
+                layers of infrastructure—from the internet to DNS, load balancers, ingress controllers, services, and 
+                finally to your application pods. Understanding this flow is crucial for troubleshooting, security, 
+                and performance optimization.
+            </p>
+            <p style="margin-top: 1rem;">
+                <strong>Example:</strong> User visits <code>https://myapp.example.com/api/users</code>
+            </p>
+        </section>
+
+        <div class="section-divider">
+            <i class="fas fa-arrow-down"></i> OUTBOUND: User Request Journey (Incoming Traffic)
+        </div>
+
+        <div class="flow-container">
+            <!-- Step 1: User -->
+            <div class="flow-step outbound">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-icon"><i class="fas fa-user"></i></div>
+                    <div class="step-title">
+                        <h3>User / Client</h3>
+                        <span class="component">Browser, Mobile App, API Client</span>
+                    </div>
+                </div>
+                <p class="step-description">
+                    The journey begins when a user types a URL or clicks a link in their browser.
+                </p>
+                <div class="step-details">
+                    <strong>What Happens:</strong>
+                    <ul>
+                        <li>User enters <code>https://myapp.example.com</code> in the browser</li>
+                        <li>Browser initiates an HTTPS connection</li>
+                        <li>Request includes headers, cookies, and authentication tokens</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+
+            <!-- Step 2: DNS -->
+            <div class="flow-step outbound">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-icon"><i class="fas fa-network-wired"></i></div>
+                    <div class="step-title">
+                        <h3>DNS Resolution</h3>
+                        <span class="component">Azure DNS, Route 53, Cloud DNS, Cloudflare</span>
+                    </div>
+                </div>
+                <p class="step-description">
+                    The domain name is resolved to the public IP address of your load balancer.
+                </p>
+                <div class="step-details">
+                    <strong>What Happens:</strong>
+                    <ul>
+                        <li>Browser queries DNS server for <code>myapp.example.com</code></li>
+                        <li>DNS returns the public IP address (e.g., <code>203.0.113.10</code>)</li>
+                        <li>Browser establishes TCP connection to this IP on port 443 (HTTPS)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+
+            <!-- Step 3: Cloud Load Balancer -->
+            <div class="flow-step outbound">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div class="step-icon"><i class="fas fa-balance-scale"></i></div>
+                    <div class="step-title">
+                        <h3>Cloud Load Balancer (Layer 4)</h3>
+                        <span class="component">Azure Load Balancer, AWS NLB, GCP Load Balancer</span>
+                    </div>
+                </div>
+                <p class="step-description">
+                    External L4 load balancer receives the traffic and forwards it to Kubernetes cluster nodes.
+                </p>
+                <div class="step-details">
+                    <strong>What Happens:</strong>
+                    <ul>
+                        <li>Receives TCP/HTTPS traffic on public IP</li>
+                        <li>Performs SSL/TLS termination (optional)</li>
+                        <li>Distributes traffic across multiple Kubernetes worker nodes</li>
+                        <li>Health checks ensure only healthy nodes receive traffic</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+
+            <!-- Step 4: Ingress Controller -->
+            <div class="flow-step outbound">
+                <div class="step-header">
+                    <div class="step-number">4</div>
+                    <div class="step-icon"><i class="fas fa-door-open"></i></div>
+                    <div class="step-title">
+                        <h3>Ingress Controller (Layer 7)</h3>
+                        <span class="component">NGINX Ingress, Traefik, Istio Gateway, Ambassador</span>
+                    </div>
+                </div>
+                <p class="step-description">
+                    The Ingress Controller routes HTTP/HTTPS traffic based on hostnames, paths, and rules.
+                </p>
+                <div class="step-details">
+                    <strong>What Happens:</strong>
+                    <ul>
+                        <li>Inspects the HTTP request (hostname, path, headers)</li>
+                        <li>Matches request against Ingress rules</li>
+                        <li>Performs SSL/TLS termination if not done at Load Balancer</li>
+                        <li>Routes <code>/api/*</code> to backend service, <code>/web/*</code> to frontend service</li>
+                        <li>Can apply rate limiting, authentication, and URL rewriting</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+
+            <!-- Step 5: Kubernetes Service -->
+            <div class="flow-step outbound">
+                <div class="step-header">
+                    <div class="step-number">5</div>
+                    <div class="step-icon"><i class="fas fa-layer-group"></i></div>
+                    <div class="step-title">
+                        <h3>Kubernetes Service</h3>
+                        <span class="component">ClusterIP, NodePort, LoadBalancer</span>
+                    </div>
+                </div>
+                <p class="step-description">
+                    Service provides a stable virtual IP and load balances traffic across pod replicas.
+                </p>
+                <div class="step-details">
+                    <strong>What Happens:</strong>
+                    <ul>
+                        <li>Ingress forwards request to Service (e.g., <code>backend-service:8080</code>)</li>
+                        <li>Service uses label selectors to find matching pods</li>
+                        <li>kube-proxy or CNI handles load balancing across pod endpoints</li>
+                        <li>Distributes requests using round-robin or session affinity</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+
+            <!-- Step 6: Application Pod -->
+            <div class="flow-step outbound">
+                <div class="step-header">
+                    <div class="step-number">6</div>
+                    <div class="step-icon"><i class="fas fa-cube"></i></div>
+                    <div class="step-title">
+                        <h3>Application Pod</h3>
+                        <span class="component">Container running your application (Node.js, Python, Java, Go)</span>
+                    </div>
+                </div>
+                <p class="step-description">
+                    Request reaches your application container, which processes the business logic.
+                </p>
+                <div class="step-details">
+                    <strong>What Happens:</strong>
+                    <ul>
+                        <li>Pod receives request on container port (e.g., <code>8080</code>)</li>
+                        <li>Application code processes the request</li>
+                        <li>May call database, cache (Redis), or other microservices</li>
+                        <li>Generates response (JSON, HTML, etc.)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+
+            <!-- Step 7: Backend Services -->
+            <div class="flow-step outbound">
+                <div class="step-header">
+                    <div class="step-number">7</div>
+                    <div class="step-icon"><i class="fas fa-database"></i></div>
+                    <div class="step-title">
+                        <h3>Backend Services (Optional)</h3>
+                        <span class="component">Database, Cache, Message Queue, External APIs</span>
+                    </div>
+                </div>
+                <p class="step-description">
+                    If needed, the application connects to databases, caches, or other microservices.
+                </p>
+                <div class="step-details">
+                    <strong>What Happens:</strong>
+                    <ul>
+                        <li>Query database (PostgreSQL, MongoDB) for data</li>
+                        <li>Check cache (Redis, Memcached) for faster lookups</li>
+                        <li>Call other microservices via internal Service DNS</li>
+                        <li>Publish events to message queues (Kafka, RabbitMQ)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider">
+            <i class="fas fa-arrow-up"></i> INBOUND: Response Journey (Outgoing Traffic)
+        </div>
+
+        <div class="flow-container">
+            <!-- Return Step 8: Application Responds -->
+            <div class="flow-step inbound">
+                <div class="step-header">
+                    <div class="step-number">8</div>
+                    <div class="step-icon"><i class="fas fa-reply"></i></div>
+                    <div class="step-title">
+                        <h3>Application Generates Response</h3>
+                        <span class="component">Pod sends response back</span>
+                    </div>
+                </div>
+                <p class="step-description">
+                    After processing, the pod generates an HTTP response with status code, headers, and body.
+                </p>
+                <div class="step-details">
+                    <strong>What Happens:</strong>
+                    <ul>
+                        <li>Application builds response (e.g., JSON data, HTML page)</li>
+                        <li>Sets HTTP status code (200 OK, 404 Not Found, etc.)</li>
+                        <li>Adds response headers (Content-Type, Cache-Control, etc.)</li>
+                        <li>Sends response back through the same path</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flow-arrow return"><i class="fas fa-arrow-down"></i></div>
+
+            <!-- Return through Service -->
+            <div class="flow-step inbound">
+                <div class="step-header">
+                    <div class="step-number">9</div>
+                    <div class="step-icon"><i class="fas fa-layer-group"></i></div>
+                    <div class="step-title">
+                        <h3>Service → Ingress Controller</h3>
+                        <span class="component">Response flows back through Service</span>
+                    </div>
+                </div>
+                <p class="step-description">
+                    Response travels back through the Kubernetes Service to the Ingress Controller.
+                </p>
+            </div>
+
+            <div class="flow-arrow return"><i class="fas fa-arrow-down"></i></div>
+
+            <!-- Return through Ingress -->
+            <div class="flow-step inbound">
+                <div class="step-header">
+                    <div class="step-number">10</div>
+                    <div class="step-icon"><i class="fas fa-door-closed"></i></div>
+                    <div class="step-title">
+                        <h3>Ingress Controller → Load Balancer</h3>
+                        <span class="component">Ingress adds headers, applies policies</span>
+                    </div>
+                </div>
+                <p class="step-description">
+                    Ingress Controller may add security headers, compress response, and forward to Load Balancer.
+                </p>
+            </div>
+
+            <div class="flow-arrow return"><i class="fas fa-arrow-down"></i></div>
+
+            <!-- Return through Load Balancer -->
+            <div class="flow-step inbound">
+                <div class="step-header">
+                    <div class="step-number">11</div>
+                    <div class="step-icon"><i class="fas fa-balance-scale"></i></div>
+                    <div class="step-title">
+                        <h3>Load Balancer → Internet</h3>
+                        <span class="component">Response exits the cluster</span>
+                    </div>
+                </div>
+                <p class="step-description">
+                    Cloud Load Balancer forwards the response back to the internet.
+                </p>
+            </div>
+
+            <div class="flow-arrow return"><i class="fas fa-arrow-down"></i></div>
+
+            <!-- Return to User -->
+            <div class="flow-step inbound">
+                <div class="step-header">
+                    <div class="step-number">12</div>
+                    <div class="step-icon"><i class="fas fa-user-check"></i></div>
+                    <div class="step-title">
+                        <h3>User Receives Response</h3>
+                        <span class="component">Browser renders the page</span>
+                    </div>
+                </div>
+                <p class="step-description">
+                    The response arrives at the user's browser, which renders the content.
+                </p>
+                <div class="step-details">
+                    <strong>What Happens:</strong>
+                    <ul>
+                        <li>Browser receives HTTP response</li>
+                        <li>Parses HTML/JSON and renders UI</li>
+                        <li>Executes JavaScript if needed</li>
+                        <li>User sees the final result!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tech Stack -->
+        <div class="tech-stack">
+            <h2><i class="fas fa-toolbox"></i> Common Technologies in This Flow</h2>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <i class="fas fa-network-wired"></i>
+                    <div>
+                        <strong>DNS</strong>
+                        <span>Azure DNS, Route 53, Cloudflare</span>
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-balance-scale"></i>
+                    <div>
+                        <strong>Load Balancer</strong>
+                        <span>Azure LB, AWS NLB/ALB, GCP LB</span>
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-door-open"></i>
+                    <div>
+                        <strong>Ingress</strong>
+                        <span>NGINX, Traefik, Istio, Ambassador</span>
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-dharmachakra"></i>
+                    <div>
+                        <strong>Orchestrator</strong>
+                        <span>Kubernetes (AKS, EKS, GKE)</span>
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-cube"></i>
+                    <div>
+                        <strong>Container Runtime</strong>
+                        <span>containerd, CRI-O</span>
+                    </div>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-database"></i>
+                    <div>
+                        <strong>Database</strong>
+                        <span>PostgreSQL, MySQL, MongoDB</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-heart"></i> Created by Sharmaji Cloud Wale</p>
+        <p>&copy; 2025 Kubernetes Insights | <a href="https://github.com/ashish02510gh" target="_blank"><i class="fab fa-github"></i> GitHub</a></p>
+    </footer>
+</body>
+</html>
+

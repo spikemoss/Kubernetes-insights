@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNCF Tools vs Cloud Services Comparison | Cloud-Native Ecosystem</title>
+    <meta name="description" content="Compare CNCF open-source tools with Azure, AWS, and Google Cloud managed services">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --cncf: #436daa;
+            --azure: #0078d4;
+            --aws: #ff9900;
+            --gcp: #4285f4;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+            color: var(--text-dark);
+            line-height: 1.7;
+        }
+
+        header {
+            background: linear-gradient(135deg, #436daa 0%, #5c88c4 100%);
+            color: white;
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 3rem auto;
+            padding: 0 2rem 3rem;
+        }
+
+        .intro-section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--cncf);
+        }
+
+        .intro-section h2 {
+            color: var(--cncf);
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .comparison-table-wrapper {
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #436daa, #5c88c4);
+            color: white;
+            padding: 1.5rem 2rem;
+        }
+
+        .table-header h2 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #436daa, #5c88c4);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 60px;
+            z-index: 10;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody tr:hover {
+            background: var(--bg-light);
+        }
+
+        .category-cell {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .cncf-cell { 
+            color: var(--cncf); 
+            font-weight: 600;
+        }
+
+        .cncf-cell a {
+            color: var(--cncf);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--cncf);
+        }
+
+        .cncf-cell a:hover {
+            border-bottom-style: solid;
+        }
+
+        .cloud-cell {
+            color: var(--text-gray);
+            font-size: 0.9375rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .badge.graduated {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge.incubating {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge.sandbox {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.5rem; }
+            main { padding: 0 1rem 2rem; }
+
+            table {
+                font-size: 0.875rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="/cloud-native-blogs/index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+            <h1><i class="fas fa-toolbox"></i> CNCF Tools vs Cloud Services</h1>
+            <p>Open-source cloud-native tools and their managed cloud equivalents</p>
+        </div>
+    </header>
+
+    <main>
+        <section class="intro-section">
+            <h2><i class="fas fa-info-circle"></i> CNCF Ecosystem Overview</h2>
+            <p>
+                The Cloud Native Computing Foundation (CNCF) hosts critical open-source projects that power modern 
+                cloud-native infrastructure. This comparison helps you choose between self-managed CNCF tools and 
+                managed cloud services from Azure, AWS, and Google Cloud.
+            </p>
+            <p style="margin-top: 1rem;">
+                <strong>Maturity Levels:</strong> 
+                <span class="badge graduated">Graduated</span> - Production-ready, widely adopted |
+                <span class="badge incubating">Incubating</span> - Stable, growing adoption |
+                <span class="badge sandbox">Sandbox</span> - Early-stage innovation
+            </p>
+        </section>
+
+        <div class="comparison-table-wrapper">
+            <div class="table-header">
+                <h2><i class="fas fa-table"></i> Tool Comparison Matrix</h2>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th><i class="fas fa-cloud"></i> CNCF / Open Source</th>
+                        <th><i class="fab fa-microsoft"></i> Azure</th>
+                        <th><i class="fab fa-aws"></i> AWS</th>
+                        <th><i class="fab fa-google"></i> Google Cloud</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="category-cell">Container Orchestration</td>
+                        <td class="cncf-cell">
+                            <a href="https://kubernetes.io" target="_blank">Kubernetes</a>
+                            <span class="badge graduated">Graduated</span>
+                        </td>
+                        <td class="cloud-cell">Azure Kubernetes Service (AKS)</td>
+                        <td class="cloud-cell">Elastic Kubernetes Service (EKS)</td>
+                        <td class="cloud-cell">Google Kubernetes Engine (GKE)</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Container Runtime</td>
+                        <td class="cncf-cell">
+                            <a href="https://containerd.io" target="_blank">containerd</a>
+                            <span class="badge graduated">Graduated</span>
+                        </td>
+                        <td class="cloud-cell">Integrated with AKS</td>
+                        <td class="cloud-cell">Integrated with EKS</td>
+                        <td class="cloud-cell">Integrated with GKE</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Service Mesh</td>
+                        <td class="cncf-cell">
+                            <a href="https://istio.io" target="_blank">Istio</a>, 
+                            <a href="https://linkerd.io" target="_blank">Linkerd</a>
+                            <span class="badge graduated">Graduated</span>
+                        </td>
+                        <td class="cloud-cell">Azure Service Mesh (Istio-based)</td>
+                        <td class="cloud-cell">AWS App Mesh</td>
+                        <td class="cloud-cell">Anthos Service Mesh</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Ingress Controller</td>
+                        <td class="cncf-cell">
+                            <a href="https://github.com/kubernetes/ingress-nginx" target="_blank">NGINX Ingress</a>, 
+                            <a href="https://www.getambassador.io" target="_blank">Envoy / Emissary</a>
+                            <span class="badge graduated">Graduated</span>
+                        </td>
+                        <td class="cloud-cell">Azure Application Gateway</td>
+                        <td class="cloud-cell">AWS Load Balancer Controller</td>
+                        <td class="cloud-cell">GKE Ingress</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Container Registry</td>
+                        <td class="cncf-cell">
+                            <a href="https://goharbor.io" target="_blank">Harbor</a>
+                            <span class="badge graduated">Graduated</span>
+                        </td>
+                        <td class="cloud-cell">Azure Container Registry (ACR)</td>
+                        <td class="cloud-cell">Elastic Container Registry (ECR)</td>
+                        <td class="cloud-cell">Artifact Registry</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Monitoring</td>
+                        <td class="cncf-cell">
+                            <a href="https://prometheus.io" target="_blank">Prometheus</a>
+                            <span class="badge graduated">Graduated</span>
+                        </td>
+                        <td class="cloud-cell">Azure Monitor</td>
+                        <td class="cloud-cell">Amazon CloudWatch</td>
+                        <td class="cloud-cell">Cloud Monitoring</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Logging</td>
+                        <td class="cncf-cell">
+                            <a href="https://fluentd.org" target="_blank">Fluentd</a>, 
+                            <a href="https://grafana.com/oss/loki/" target="_blank">Loki</a>
+                            <span class="badge graduated">Graduated</span>
+                        </td>
+                        <td class="cloud-cell">Azure Log Analytics</td>
+                        <td class="cloud-cell">CloudWatch Logs</td>
+                        <td class="cloud-cell">Cloud Logging</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Tracing</td>
+                        <td class="cncf-cell">
+                            <a href="https://www.jaegertracing.io" target="_blank">Jaeger</a>
+                            <span class="badge graduated">Graduated</span>
+                        </td>
+                        <td class="cloud-cell">Azure Application Insights</td>
+                        <td class="cloud-cell">AWS X-Ray</td>
+                        <td class="cloud-cell">Cloud Trace</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">CI/CD</td>
+                        <td class="cncf-cell">
+                            <a href="https://argoproj.github.io/cd/" target="_blank">Argo CD</a>, 
+                            <a href="https://fluxcd.io" target="_blank">Flux</a>
+                            <span class="badge graduated">Graduated</span>
+                        </td>
+                        <td class="cloud-cell">Azure Pipelines</td>
+                        <td class="cloud-cell">AWS CodePipeline</td>
+                        <td class="cloud-cell">Cloud Build</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">GitOps</td>
+                        <td class="cncf-cell">
+                            <a href="https://argoproj.github.io" target="_blank">Argo Project</a>, 
+                            <a href="https://fluxcd.io" target="_blank">Flux</a>
+                            <span class="badge graduated">Graduated</span>
+                        </td>
+                        <td class="cloud-cell">Azure Arc + Flux</td>
+                        <td class="cloud-cell">Amazon EKS + Flux</td>
+                        <td class="cloud-cell">Anthos Config Management</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Secrets Management</td>
+                        <td class="cncf-cell">
+                            <a href="https://www.vaultproject.io" target="_blank">HashiCorp Vault</a>, 
+                            <a href="https://external-secrets.io" target="_blank">External Secrets</a>
+                        </td>
+                        <td class="cloud-cell">Azure Key Vault</td>
+                        <td class="cloud-cell">AWS Secrets Manager</td>
+                        <td class="cloud-cell">Secret Manager</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Policy Enforcement</td>
+                        <td class="cncf-cell">
+                            <a href="https://www.openpolicyagent.org" target="_blank">Open Policy Agent (OPA)</a>
+                            <span class="badge graduated">Graduated</span>
+                        </td>
+                        <td class="cloud-cell">Azure Policy</td>
+                        <td class="cloud-cell">AWS Config</td>
+                        <td class="cloud-cell">Policy Controller</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Certificate Management</td>
+                        <td class="cncf-cell">
+                            <a href="https://cert-manager.io" target="_blank">cert-manager</a>
+                            <span class="badge graduated">Graduated</span>
+                        </td>
+                        <td class="cloud-cell">Azure Key Vault Certificates</td>
+                        <td class="cloud-cell">AWS Certificate Manager</td>
+                        <td class="cloud-cell">Certificate Authority Service</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Network Policy</td>
+                        <td class="cncf-cell">
+                            <a href="https://www.tigera.io/project-calico/" target="_blank">Calico</a>, 
+                            <a href="https://cilium.io" target="_blank">Cilium</a>
+                            <span class="badge incubating">Incubating</span>
+                        </td>
+                        <td class="cloud-cell">Azure Network Policy (Calico)</td>
+                        <td class="cloud-cell">VPC CNI Network Policy</td>
+                        <td class="cloud-cell">GKE Network Policy</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Service Discovery</td>
+                        <td class="cncf-cell">
+                            <a href="https://www.envoyproxy.io" target="_blank">Envoy</a>, 
+                            <a href="https://coredns.io" target="_blank">CoreDNS</a>
+                            <span class="badge graduated">Graduated</span>
+                        </td>
+                        <td class="cloud-cell">Azure DNS</td>
+                        <td class="cloud-cell">Route 53</td>
+                        <td class="cloud-cell">Cloud DNS</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Artifact Signing</td>
+                        <td class="cncf-cell">
+                            <a href="https://www.sigstore.dev" target="_blank">Sigstore (Cosign)</a>
+                            <span class="badge incubating">Incubating</span>
+                        </td>
+                        <td class="cloud-cell">Azure Container Registry + Notation</td>
+                        <td class="cloud-cell">AWS Signer</td>
+                        <td class="cloud-cell">Binary Authorization</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Runtime Security</td>
+                        <td class="cncf-cell">
+                            <a href="https://falco.org" target="_blank">Falco</a>
+                            <span class="badge graduated">Graduated</span>
+                        </td>
+                        <td class="cloud-cell">Microsoft Defender for Cloud</td>
+                        <td class="cloud-cell">Amazon GuardDuty</td>
+                        <td class="cloud-cell">Security Command Center</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Cost Management</td>
+                        <td class="cncf-cell">
+                            <a href="https://www.kubecost.com" target="_blank">OpenCost</a>
+                            <span class="badge sandbox">Sandbox</span>
+                        </td>
+                        <td class="cloud-cell">Azure Cost Management</td>
+                        <td class="cloud-cell">AWS Cost Explorer</td>
+                        <td class="cloud-cell">Cloud Billing</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Storage Orchestration</td>
+                        <td class="cncf-cell">
+                            <a href="https://rook.io" target="_blank">Rook</a>, 
+                            <a href="https://longhorn.io" target="_blank">Longhorn</a>
+                            <span class="badge graduated">Graduated</span>
+                        </td>
+                        <td class="cloud-cell">Azure Disks / Azure Files</td>
+                        <td class="cloud-cell">EBS / EFS</td>
+                        <td class="cloud-cell">Persistent Disk / Filestore</td>
+                    </tr>
+                    <tr>
+                        <td class="category-cell">Serverless / Functions</td>
+                        <td class="cncf-cell">
+                            <a href="https://knative.dev" target="_blank">Knative</a>
+                            <span class="badge incubating">Incubating</span>
+                        </td>
+                        <td class="cloud-cell">Azure Functions, Container Apps</td>
+                        <td class="cloud-cell">AWS Lambda</td>
+                        <td class="cloud-cell">Cloud Functions, Cloud Run</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-heart"></i> Created by Sharmaji Cloud Wale</p>
+        <p>&copy; 2025 Kubernetes Insights | <a href="https://github.com/ashish02510gh" target="_blank"><i class="fab fa-github"></i> GitHub</a></p>
+    </footer>
+</body>
+</html>

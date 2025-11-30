@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Resources & Learning Library | Courses, Docs & Communities</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,96C1248,75,1344,53,1392,42.7L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.3;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .intro-section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .intro-section h2 {
+            font-size: 1.875rem;
+            color: #f59e0b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .resource-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .resource-card h3 {
+            font-size: 1.3rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .resource-card a {
+            color: #f59e0b;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        .resource-card a:hover {
+            opacity: 0.7;
+            text-decoration: underline;
+        }
+
+        .category-tag {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-badge {
+            display: inline-block;
+            background: #dcfce7;
+            color: #166534;
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .pricing-badge.paid {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .certification-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #ffffff 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .certification-box h4 {
+            color: #f59e0b;
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        footer a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        ul {
+            list-style-position: inside;
+        }
+
+        ul li {
+            padding: 0.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+
+            .resource-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/cloud-native-blogs/index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+        <h1><i class="fas fa-book"></i> Learning Resources Library</h1>
+        <p>Courses, Documentation, Communities & Learning Materials</p>
+    </header>
+
+    <main>
+        <section class="intro-section">
+            <h2><i class="fas fa-lightbulb"></i> Your Complete Learning Roadmap</h2>
+            <p>
+                Master Kubernetes with curated resources from beginners to advanced. This collection includes official 
+                documentation, premium courses, free tutorials, community platforms, and certification guides. All hand-picked 
+                to accelerate your learning journey.
+            </p>
+        </section>
+
+        <!-- Official Documentation -->
+        <div class="section-header">
+            <h2><i class="fas fa-file-alt"></i> Official Documentation</h2>
+            <p>The authoritative source for all things Kubernetes</p>
+        </div>
+
+        <div class="resource-grid">
+            <div class="resource-card">
+                <h3><i class="fas fa-kubernetes"></i> Kubernetes Official Docs</h3>
+                <p class="category-tag">Official <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Comprehensive official documentation covering all Kubernetes concepts, API references, and best practices.
+                </p>
+                <a href="https://kubernetes.io/docs/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Visit Documentation
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-book"></i> Kubernetes API Reference</h3>
+                <p class="category-tag">Reference <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Complete API documentation for all Kubernetes objects, fields, and versioning information.
+                </p>
+                <a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> View API Reference
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-graduation-cap"></i> Official Kubernetes Tutorials</h3>
+                <p class="category-tag">Tutorials <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Step-by-step interactive tutorials from official Kubernetes project covering core concepts and deployments.
+                </p>
+                <a href="https://kubernetes.io/docs/tutorials/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Start Tutorials
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-helm"></i> Helm Official Documentation</h3>
+                <p class="category-tag">Package Manager <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Learn Helm chart development, package management, and deployment automation for Kubernetes.
+                </p>
+                <a href="https://helm.sh/docs/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Helm Docs
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-chart-bar"></i> Prometheus Documentation</h3>
+                <p class="category-tag">Monitoring <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Complete guide to Prometheus monitoring, alerting, and integration with Kubernetes.
+                </p>
+                <a href="https://prometheus.io/docs/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Prometheus Docs
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-shield-alt"></i> Istio Service Mesh</h3>
+                <p class="category-tag">Service Mesh <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Learn service mesh architecture, traffic management, security policies, and observability with Istio.
+                </p>
+                <a href="https://istio.io/latest/docs/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Istio Docs
+                </a>
+            </div>
+        </div>
+
+        <!-- Certification Paths -->
+        <div class="section-header">
+            <h2><i class="fas fa-certificate"></i> Certification Programs</h2>
+            <p>Validate your Kubernetes expertise with industry-recognized certifications</p>
+        </div>
+
+        <div class="certification-box">
+            <h4><i class="fas fa-crown"></i> CKA (Certified Kubernetes Administrator)</h4>
+            <ul>
+                <li><strong>Duration:</strong> 2 hours, 17 performance-based questions</li>
+                <li><strong>Focus:</strong> Cluster maintenance, deployment, networking, troubleshooting</li>
+                <li><strong>Difficulty:</strong> Intermediate-Advanced</li>
+                <li><strong>Exam Link:</strong> <a href="https://www.cncf.io/certification/cka/" target="_blank" style="color: #f59e0b; text-decoration: underline;">CNCF CKA Certification</a></li>
+            </ul>
+        </div>
+
+        <div class="certification-box">
+            <h4><i class="fas fa-code"></i> CKAD (Certified Kubernetes Application Developer)</h4>
+            <ul>
+                <li><strong>Duration:</strong> 2 hours, 19 performance-based questions</li>
+                <li><strong>Focus:</strong> Application development, deployment, configuration, debugging</li>
+                <li><strong>Difficulty:</strong> Beginner-Intermediate</li>
+                <li><strong>Exam Link:</strong> <a href="https://www.cncf.io/certification/ckad/" target="_blank" style="color: #f59e0b; text-decoration: underline;">CNCF CKAD Certification</a></li>
+            </ul>
+        </div>
+
+        <div class="certification-box">
+            <h4><i class="fas fa-network-wired"></i> CKS (Certified Kubernetes Security Specialist)</h4>
+            <ul>
+                <li><strong>Duration:</strong> 2 hours, cluster security focus</li>
+                <li><strong>Focus:</strong> Security policies, RBAC, network policies, supply chain security</li>
+                <li><strong>Difficulty:</strong> Advanced</li>
+                <li><strong>Exam Link:</strong> <a href="https://www.cncf.io/certification/cks/" target="_blank" style="color: #f59e0b; text-decoration: underline;">CNCF CKS Certification</a></li>
+            </ul>
+        </div>
+
+        <!-- Paid Courses -->
+        <div class="section-header">
+            <h2><i class="fas fa-video"></i> Paid Courses & Platforms</h2>
+            <p>Comprehensive structured learning from industry experts</p>
+        </div>
+
+        <div class="resource-grid">
+            <div class="resource-card">
+                <h3><i class="fab fa-linux"></i> Linux Academy / A Cloud Guru</h3>
+                <p class="category-tag">Platform <span class="pricing-badge paid">Paid</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Comprehensive Kubernetes courses, CKA/CKAD exam prep, hands-on labs, and certification paths.
+                </p>
+                <a href="https://acloudguru.com/course/kubernetes-deep-dive" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Explore Courses
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fab fa-udemy"></i> Udemy Kubernetes Courses</h3>
+                <p class="category-tag">Platform <span class="pricing-badge paid">Paid</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Affordable courses covering Kubernetes basics to advanced topics, Docker, and cloud-native development.
+                </p>
+                <a href="https://www.udemy.com/course/learn-docker/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> View on Udemy
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fab fa-pluralsight"></i> Pluralsight Kubernetes Path</h3>
+                <p class="category-tag">Platform <span class="pricing-badge paid">Paid</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Structured learning paths with video courses, interactive assessments, and hands-on projects.
+                </p>
+                <a href="https://www.pluralsight.com/paths/kubernetes" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Learning Path
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-book-open"></i> O'Reilly Learning Platform</h3>
+                <p class="category-tag">Platform <span class="pricing-badge paid">Paid</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Access to comprehensive Kubernetes books, video courses, and interactive learning materials.
+                </p>
+                <a href="https://www.oreilly.com/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> O'Reilly
+                </a>
+            </div>
+        </div>
+
+        <!-- Free Content -->
+        <div class="section-header">
+            <h2><i class="fas fa-gift"></i> Free Learning Content</h2>
+            <p>Excellent free resources for every learning style</p>
+        </div>
+
+        <div class="resource-grid">
+            <div class="resource-card">
+                <h3><i class="fab fa-youtube"></i> KodeKloud YouTube</h3>
+                <p class="category-tag">YouTube <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Free Kubernetes tutorials, CKA/CKAD prep, Docker, and DevOps content with hands-on demos.
+                </p>
+                <a href="https://www.youtube.com/c/KodeKloud" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> YouTube Channel
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fab fa-youtube"></i> Techworld with Nana</h3>
+                <p class="category-tag">YouTube <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Complete Kubernetes series, DevOps tutorials, Helm, Docker, and best practices explanations.
+                </p>
+                <a href="https://www.youtube.com/@TechWorldwithNana" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> YouTube Channel
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-browser"></i> KataCoda Interactive Labs</h3>
+                <p class="category-tag">Interactive <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Hands-on Kubernetes labs in your browser without needing local installation. Practice real scenarios.
+                </p>
+                <a href="https://www.katacoda.com/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Start Labs
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-play"></i> Play with Kubernetes</h3>
+                <p class="category-tag">Interactive <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Free online Kubernetes playground. Deploy and experiment with Kubernetes in your browser.
+                </p>
+                <a href="https://www.play-with-k8s.com/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Play Now
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-newspaper"></i> Kubernetes Blog</h3>
+                <p class="category-tag">Blog <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Official Kubernetes blog with news, features, best practices, and case studies from the community.
+                </p>
+                <a href="https://kubernetes.io/blog/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Read Blog
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-users"></i> Kubernetes Slack Community</h3>
+                <p class="category-tag">Community <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Official Kubernetes Slack workspace with 100K+ members, channels for every topic, and direct support.
+                </p>
+                <a href="https://kubernetes.slack.com/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Join Slack
+                </a>
+            </div>
+        </div>
+
+        <!-- Community & Support -->
+        <div class="section-header">
+            <h2><i class="fas fa-comments"></i> Community & Support Platforms</h2>
+            <p>Engage with the Kubernetes community and get help</p>
+        </div>
+
+        <div class="resource-grid">
+            <div class="resource-card">
+                <h3><i class="fab fa-stack-overflow"></i> Stack Overflow</h3>
+                <p class="category-tag">Q&A <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Ask questions and find answers from Kubernetes community. Tag: kubernetes, docker, helm.
+                </p>
+                <a href="https://stackoverflow.com/questions/tagged/kubernetes" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> K8s Questions
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fab fa-reddit"></i> r/kubernetes Subreddit</h3>
+                <p class="category-tag">Community <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Active community discussing Kubernetes, sharing resources, asking questions, and sharing experiences.
+                </p>
+                <a href="https://www.reddit.com/r/kubernetes/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Subreddit
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-globe"></i> CNCF Events</h3>
+                <p class="category-tag">Events <span class="pricing-badge">Free/Paid</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    KubeCon, CloudNativeCon, local meetups, and online webinars from Cloud Native Computing Foundation.
+                </p>
+                <a href="https://www.cncf.io/events/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Find Events
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-code-branch"></i> Kubernetes on GitHub</h3>
+                <p class="category-tag">Open Source <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Official Kubernetes repository, discussions, issues, and contribution guidelines for open source.
+                </p>
+                <a href="https://github.com/kubernetes/kubernetes" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> GitHub Repo
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-newspaper"></i> TheNewStack</h3>
+                <p class="category-tag">News <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    News, analysis, and tutorials on Kubernetes, containers, cloud-native development, and DevOps.
+                </p>
+                <a href="https://thenewstack.io/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Visit Site
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-podcast"></i> Kubernetes Podcasts</h3>
+                <p class="category-tag">Podcast <span class="pricing-badge">Free</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Podcast.gardener.sh and other community podcasts discussing Kubernetes features and use cases.
+                </p>
+                <a href="https://kubernetespodcast.com/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Kubernetes Podcast
+                </a>
+            </div>
+        </div>
+
+        <!-- Books Section -->
+        <div class="section-header">
+            <h2><i class="fas fa-book"></i> Recommended Books</h2>
+            <p>Deep dive resources from industry experts</p>
+        </div>
+
+        <div class="resource-grid">
+            <div class="resource-card">
+                <h3><i class="fas fa-book"></i> Kubernetes in Action</h3>
+                <p class="category-tag">Book <span class="pricing-badge paid">Paid</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Comprehensive guide to deploying and managing applications on Kubernetes by Marko Lukša.
+                </p>
+                <a href="https://www.manning.com/books/kubernetes-in-action" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> View Book
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-book"></i> The Kubernetes Book</h3>
+                <p class="category-tag">Book <span class="pricing-badge paid">Paid</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    From zero to Kubernetes hero by Nigel Poulton. Great for beginners and experienced users.
+                </p>
+                <a href="https://www.theknubernetesbook.com/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> View Book
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-book"></i> Cloud Native Transformation</h3>
+                <p class="category-tag">Book <span class="pricing-badge paid">Paid</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Practical patterns and strategies for modernization by Michelle Gienow and Shannon Weyrick.
+                </p>
+                <a href="https://www.oreilly.com/library/view/cloud-native-transformation/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> View Book
+                </a>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-book"></i> Kubernetes Best Practices</h3>
+                <p class="category-tag">Book <span class="pricing-badge paid">Paid</span></p>
+                <p style="font-size: 0.95rem; color: var(--text-gray); margin-top: 0.75rem;">
+                    Practical recommendations and patterns by Brendan Burns, Eddie Villalba, and Lachlan Evenson.
+                </p>
+                <a href="https://www.oreilly.com/library/view/kubernetes-best-practices/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> View Book
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-graduation-cap"></i> Happy Learning! Keep exploring and growing your Kubernetes expertise.</p>
+        <p>&copy; 2025 Kubernetes Insights by Sharmaji Cloud Wale | 
+            <a href="https://github.com/ashish02510gh" target="_blank"><i class="fab fa-github"></i> GitHub</a> | 
+            <a href="https://www.linkedin.com/in/ashish02510/" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+        </p>
+    </footer>
+</body>
+</html>
