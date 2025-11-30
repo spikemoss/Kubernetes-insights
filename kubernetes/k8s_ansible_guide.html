@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Cluster Automation with Ansible | Beginner's Guide</title>
+    <meta name="description" content="Learn to automate Kubernetes HA cluster setup using Ansible - A complete beginner-friendly guide">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+            color: var(--text-dark);
+            line-height: 1.7;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem 3rem;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: var(--bg-card);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .info-box.warning {
+            border-left-color: var(--warning);
+        }
+
+        .info-box.success {
+            border-left-color: var(--success);
+        }
+
+        .info-box.beginner {
+            border-left-color: var(--success);
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+        }
+
+        .info-box h3 {
+            color: var(--primary);
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Section */
+        section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        section h2 {
+            color: var(--primary);
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        section h3 {
+            color: var(--text-dark);
+            font-size: 1.375rem;
+            margin: 1.5rem 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        section h4 {
+            color: var(--text-dark);
+            font-size: 1.125rem;
+            margin: 1rem 0 0.75rem;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: var(--text-gray);
+        }
+
+        li strong {
+            color: var(--text-dark);
+        }
+
+        /* Code Blocks */
+        pre {
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+
+        code {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+        }
+
+        .inline-code {
+            background: #f1f5f9;
+            color: var(--primary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        /* Code Label */
+        .code-label {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody tr:hover {
+            background: var(--bg-light);
+        }
+
+        /* Steps */
+        .step {
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            margin-right: 0.75rem;
+        }
+
+        /* Ansible Concept Card */
+        .concept-card {
+            background: linear-gradient(135deg, #fef3c7 0%, #fef9e7 100%);
+            border-left: 4px solid var(--warning);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .concept-card h4 {
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            main {
+                padding: 0 1rem 2rem;
+            }
+
+            section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="/cloud-native-blogs/index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+            <h1><i class="fas fa-robot"></i> Kubernetes Cluster Automation with Ansible</h1>
+            <p>Complete beginner's guide to automating HA Kubernetes cluster deployment</p>
+        </div>
+    </header>
+
+    <main>
+        <div class="info-box beginner">
+            <h3><i class="fas fa-graduation-cap"></i> New to Ansible? Perfect!</h3>
+            <p>This guide assumes you're new to Ansible and will teach you everything from basics to automating a complete Kubernetes HA cluster. By the end, you'll be able to deploy production-ready clusters with a single command!</p>
+        </div>
+
+        <!-- What is Ansible -->
+        <section>
+            <h2><i class="fas fa-question-circle"></i> What is Ansible?</h2>
+
+            <p>Ansible is an <strong>automation tool</strong> that helps you configure servers, deploy applications, and manage infrastructure without writing complex scripts. Think of it as a recipe book for your servers!</p>
+
+            <h3><i class="fas fa-star"></i> Why Use Ansible for Kubernetes?</h3>
+            <ul>
+                <li><strong>Agentless:</strong> No need to install software on target servers</li>
+                <li><strong>Simple:</strong> Uses YAML (human-readable format)</li>
+                <li><strong>Idempotent:</strong> Running the same playbook multiple times produces the same result</li>
+                <li><strong>Repeatable:</strong> Deploy identical clusters quickly</li>
+                <li><strong>Version Control:</strong> Track changes in Git</li>
+            </ul>
+
+            <div class="concept-card">
+                <h4><i class="fas fa-lightbulb"></i> Key Concept: How Ansible Works</h4>
+                <p>Ansible connects to your servers via SSH, runs commands, and ensures everything is configured as specified. No agents or daemons required!</p>
+            </div>
+        </section>
+
+        <!-- Ansible Basics -->
+        <section>
+            <h2><i class="fas fa-book"></i> Ansible Basics for Beginners</h2>
+
+            <h3><i class="fas fa-puzzle-piece"></i> Core Components</h3>
+
+            <div class="concept-card">
+                <h4><i class="fas fa-file-alt"></i> 1. Inventory File</h4>
+                <p>Lists all your servers (hosts) organized into groups. Example: masters, workers, load balancers.</p>
+            </div>
+
+            <div class="concept-card">
+                <h4><i class="fas fa-scroll"></i> 2. Playbook</h4>
+                <p>A YAML file containing tasks (instructions) to execute on your servers. Like a recipe with steps.</p>
+            </div>
+
+            <div class="concept-card">
+                <h4><i class="fas fa-tasks"></i> 3. Tasks</h4>
+                <p>Individual actions like "install package", "copy file", "restart service".</p>
+            </div>
+
+            <div class="concept-card">
+                <h4><i class="fas fa-layer-group"></i> 4. Roles</h4>
+                <p>Organized collections of tasks, templates, and files for specific purposes (e.g., "kubernetes-master" role).</p>
+            </div>
+
+            <div class="concept-card">
+                <h4><i class="fas fa-database"></i> 5. Variables</h4>
+                <p>Dynamic values you can change without modifying the playbook (e.g., IP addresses, versions).</p>
+            </div>
+        </section>
+
+        <!-- Prerequisites -->
+        <section>
+            <h2><i class="fas fa-clipboard-check"></i> Prerequisites</h2>
+
+            <h3><i class="fas fa-laptop-code"></i> Control Node (Your Machine)</h3>
+            <ul>
+                <li>Linux, macOS, or WSL2 on Windows</li>
+                <li>Python 3.8+ installed</li>
+                <li>SSH key pair generated</li>
+                <li>Ansible 2.14+ installed</li>
+            </ul>
+
+            <h3><i class="fas fa-server"></i> Target Servers</h3>
+            <ul>
+                <li>3 Master nodes, 3 Worker nodes, 2 Load balancer nodes</li>
+                <li>Ubuntu 20.04/22.04 or RHEL 8+</li>
+                <li>SSH access with sudo privileges</li>
+                <li>Python 3 installed on all servers</li>
+            </ul>
+
+            <div class="step">
+                <h3><span class="step-number">1</span> Install Ansible on Control Node</h3>
+
+                <h4>Ubuntu/Debian:</h4>
+                <pre><code>sudo apt update
+sudo apt install -y software-properties-common
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt install -y ansible</code></pre>
+
+                <h4>macOS:</h4>
+                <pre><code>brew install ansible</code></pre>
+
+                <h4>Verify Installation:</h4>
+                <pre><code>ansible --version</code></pre>
+            </div>
+
+            <div class="step">
+                <h3><span class="step-number">2</span> Generate and Copy SSH Keys</h3>
+
+                <h4>Generate SSH Key (if you don't have one):</h4>
+                <pre><code>ssh-keygen -t rsa -b 4096 -C "ansible@k8s-cluster"</code></pre>
+
+                <h4>Copy SSH key to all servers:</h4>
+                <pre><code># Replace with your server IPs
+ssh-copy-id user@master1-ip
+ssh-copy-id user@master2-ip
+ssh-copy-id user@master3-ip
+ssh-copy-id user@worker1-ip
+ssh-copy-id user@worker2-ip
+ssh-copy-id user@worker3-ip
+ssh-copy-id user@lb1-ip
+ssh-copy-id user@lb2-ip</code></pre>
+
+                <h4>Test SSH Connection:</h4>
+                <pre><code>ssh user@master1-ip</code></pre>
+            </div>
+        </section>
+
+        <!-- Project Structure -->
+        <section>
+            <h2><i class="fas fa-folder-tree"></i> Project Structure</h2>
+
+            <p>Create a directory structure for your Ansible project:</p>
+
+            <pre><code>k8s-ansible/
+├── inventory/
+│   └── hosts.ini              # Server inventory
+├── group_vars/
+│   └── all.yml               # Global variables
+├── roles/
+│   ├── common/               # Common setup for all nodes
+│   ├── haproxy/              # Load balancer configuration
+│   ├── k8s-master/           # Master node setup
+│   └── k8s-worker/           # Worker node setup
+├── playbooks/
+│   ├── site.yml              # Main playbook
+│   ├── setup-haproxy.yml     # Load balancer playbook
+│   ├── setup-masters.yml     # Master nodes playbook
+│   └── setup-workers.yml     # Worker nodes playbook
+└── ansible.cfg               # Ansible configuration</code></pre>
+
+            <div class="step">
+                <h3><span class="step-number">3</span> Create Project Structure</h3>
+                <pre><code>mkdir -p k8s-ansible/{inventory,group_vars,roles,playbooks}
+cd k8s-ansible</code></pre>
+            </div>
+        </section>
+
+        <!-- Inventory File -->
+        <section>
+            <h2><i class="fas fa-list"></i> Step 1: Create Inventory File</h2>
+
+            <p>The inventory file tells Ansible which servers to manage.</p>
+
+            <div class="code-label">inventory/hosts.ini</div>
+            <pre><code>[load_balancers]
+lb1 ansible_host=192.168.1.10 ansible_user=ubuntu
+lb2 ansible_host=192.168.1.11 ansible_user=ubuntu
+
+[masters]
+master1 ansible_host=192.168.1.101 ansible_user=ubuntu
+master2 ansible_host=192.168.1.102 ansible_user=ubuntu
+master3 ansible_host=192.168.1.103 ansible_user=ubuntu
+
+[workers]
+worker1 ansible_host=192.168.1.201 ansible_user=ubuntu
+worker2 ansible_host=192.168.1.202 ansible_user=ubuntu
+worker3 ansible_host=192.168.1.203 ansible_user=ubuntu
+
+[k8s_cluster:children]
+masters
+workers
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3</code></pre>
+
+            <div class="info-box">
+                <h3><i class="fas fa-edit"></i> Action Required</h3>
+                <p>Replace the IP addresses with your actual server IPs and adjust <code>ansible_user</code> to match your SSH username.</p>
+            </div>
+
+            <h4>Test Inventory:</h4>
+            <pre><code>ansible all -i inventory/hosts.ini -m ping</code></pre>
+        </section>
+
+        <!-- Variables File -->
+        <section>
+            <h2><i class="fas fa-sliders-h"></i> Step 2: Define Variables</h2>
+
+            <div class="code-label">group_vars/all.yml</div>
+            <pre><code>---
+# Kubernetes Configuration
+k8s_version: "1.29.0-00"
+pod_network_cidr: "10.244.0.0/16"
+service_cidr: "10.96.0.0/12"
+
+# Load Balancer Configuration
+lb_vip: "192.168.1.100"  # Virtual IP for HA
+lb_port: 6443
+
+# Container Runtime
+container_runtime: containerd
+
+# CNI Plugin (calico or flannel)
+cni_plugin: calico
+
+# Node Configuration
+disable_swap: true
+enable_firewalld: false</code></pre>
+        </section>
+
+        <!-- Common Role -->
+        <section>
+            <h2><i class="fas fa-cogs"></i> Step 3: Create Common Role</h2>
+
+            <p>This role prepares all nodes with basic requirements.</p>
+
+            <div class="step">
+                <h3>Create Role Structure</h3>
+                <pre><code>mkdir -p roles/common/tasks</code></pre>
+            </div>
+
+            <div class="code-label">roles/common/tasks/main.yml</div>
+            <pre><code>---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Disable swap
+  shell: |
+    swapoff -a
+    sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+  when: disable_swap
+
+- name: Load kernel modules
+  copy:
+    dest: /etc/modules-load.d/k8s.conf
+    content: |
+      overlay
+      br_netfilter
+
+- name: Enable kernel modules
+  modprobe:
+    name: "{{ item }}"
+  loop:
+    - overlay
+    - br_netfilter
+
+- name: Configure sysctl
+  copy:
+    dest: /etc/sysctl.d/k8s.conf
+    content: |
+      net.bridge.bridge-nf-call-iptables  = 1
+      net.bridge.bridge-nf-call-ip6tables = 1
+      net.ipv4.ip_forward                 = 1
+
+- name: Apply sysctl
+  command: sysctl --system
+
+- name: Install containerd
+  apt:
+    name: containerd
+    state: present
+
+- name: Create containerd config directory
+  file:
+    path: /etc/containerd
+    state: directory
+
+- name: Generate containerd config
+  shell: containerd config default > /etc/containerd/config.toml
+
+- name: Enable SystemdCgroup in containerd
+  replace:
+    path: /etc/containerd/config.toml
+    regexp: 'SystemdCgroup = false'
+    replace: 'SystemdCgroup = true'
+
+- name: Restart containerd
+  systemd:
+    name: containerd
+    state: restarted
+    enabled: yes
+
+- name: Add Kubernetes apt repository
+  block:
+    - name: Install prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gpg
+        state: present
+
+    - name: Add Kubernetes GPG key
+      shell: |
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+    - name: Add Kubernetes repository
+      apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /"
+        filename: kubernetes
+
+- name: Install Kubernetes packages
+  apt:
+    name:
+      - kubelet={{ k8s_version }}
+      - kubeadm={{ k8s_version }}
+      - kubectl={{ k8s_version }}
+    state: present
+    update_cache: yes
+
+- name: Hold Kubernetes packages
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl</code></pre>
+        </section>
+
+        <!-- HAProxy Role -->
+        <section>
+            <h2><i class="fas fa-balance-scale"></i> Step 4: Create HAProxy Role</h2>
+
+            <div class="step">
+                <h3>Create Role Structure</h3>
+                <pre><code>mkdir -p roles/haproxy/{tasks,templates}</code></pre>
+            </div>
+
+            <div class="code-label">roles/haproxy/tasks/main.yml</div>
+            <pre><code>---
+- name: Install HAProxy
+  apt:
+    name: haproxy
+    state: present
+
+- name: Configure HAProxy
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  notify: Restart HAProxy
+
+- name: Enable HAProxy
+  systemd:
+    name: haproxy
+    enabled: yes
+    state: started</code></pre>
+
+            <div class="code-label">roles/haproxy/templates/haproxy.cfg.j2</div>
+            <pre><code>global
+    log /dev/log local0
+    log /dev/log local1 notice
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
+
+defaults
+    log global
+    mode tcp
+    option tcplog
+    option dontlognull
+    timeout connect 5000
+    timeout client  50000
+    timeout server  50000
+
+frontend kubernetes_frontend
+    bind *:{{ lb_port }}
+    mode tcp
+    option tcplog
+    default_backend kubernetes_backend
+
+backend kubernetes_backend
+    mode tcp
+    option tcp-check
+    balance roundrobin
+{% for host in groups['masters'] %}
+    server {{ host }} {{ hostvars[host]['ansible_host'] }}:6443 check fall 3 rise 2
+{% endfor %}</code></pre>
+
+            <div class="code-label">roles/haproxy/handlers/main.yml</div>
+            <pre><code>---
+- name: Restart HAProxy
+  systemd:
+    name: haproxy
+    state: restarted</code></pre>
+        </section>
+
+        <!-- Master Role -->
+        <section>
+            <h2><i class="fas fa-crown"></i> Step 5: Create K8s Master Role</h2>
+
+            <div class="step">
+                <h3>Create Role Structure</h3>
+                <pre><code>mkdir -p roles/k8s-master/tasks</code></pre>
+            </div>
+
+            <div class="code-label">roles/k8s-master/tasks/main.yml</div>
+            <pre><code>---
+- name: Check if cluster is initialized
+  stat:
+    path: /etc/kubernetes/admin.conf
+  register: k8s_initialized
+
+- name: Initialize first master
+  shell: |
+    kubeadm init       --control-plane-endpoint="{{ lb_vip }}:{{ lb_port }}"       --upload-certs       --pod-network-cidr={{ pod_network_cidr }}
+  when: 
+    - inventory_hostname == groups['masters'][0]
+    - not k8s_initialized.stat.exists
+  register: kubeadm_init
+
+- name: Save join commands
+  copy:
+    content: "{{ kubeadm_init.stdout }}"
+    dest: /tmp/kubeadm-init-output.txt
+  when: 
+    - inventory_hostname == groups['masters'][0]
+    - kubeadm_init.changed
+
+- name: Create .kube directory
+  file:
+    path: "{{ ansible_env.HOME }}/.kube"
+    state: directory
+    mode: '0755'
+
+- name: Copy admin.conf
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: "{{ ansible_env.HOME }}/.kube/config"
+    remote_src: yes
+    mode: '0600'
+
+- name: Install Calico CNI
+  shell: |
+    kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/calico.yaml
+  when: 
+    - inventory_hostname == groups['masters'][0]
+    - cni_plugin == "calico"
+    - kubeadm_init.changed</code></pre>
+        </section>
+
+        <!-- Main Playbook -->
+        <section>
+            <h2><i class="fas fa-play-circle"></i> Step 6: Create Main Playbook</h2>
+
+            <div class="code-label">playbooks/site.yml</div>
+            <pre><code>---
+- name: Setup HAProxy Load Balancers
+  hosts: load_balancers
+  become: yes
+  roles:
+    - haproxy
+
+- name: Setup all Kubernetes nodes
+  hosts: k8s_cluster
+  become: yes
+  roles:
+    - common
+
+- name: Setup Kubernetes Master Nodes
+  hosts: masters
+  become: yes
+  roles:
+    - k8s-master
+
+- name: Setup Kubernetes Worker Nodes
+  hosts: workers
+  become: yes
+  tasks:
+    - name: Message for manual join
+      debug:
+        msg: "Worker nodes need to be joined manually using the join command from /tmp/kubeadm-init-output.txt on master1"</code></pre>
+        </section>
+
+        <!-- Ansible Config -->
+        <section>
+            <h2><i class="fas fa-wrench"></i> Step 7: Configure Ansible</h2>
+
+            <div class="code-label">ansible.cfg</div>
+            <pre><code>[defaults]
+inventory = inventory/hosts.ini
+host_key_checking = False
+retry_files_enabled = False
+gathering = smart
+fact_caching = jsonfile
+fact_caching_connection = /tmp/ansible_facts
+fact_caching_timeout = 3600
+
+[privilege_escalation]
+become = True
+become_method = sudo
+become_user = root
+become_ask_pass = False</code></pre>
+        </section>
+
+        <!-- Run Playbook -->
+        <section>
+            <h2><i class="fas fa-rocket"></i> Step 8: Deploy Your Cluster!</h2>
+
+            <div class="step">
+                <h3><span class="step-number">1</span> Dry Run (Check Mode)</h3>
+                <p>Test without making changes:</p>
+                <pre><code>ansible-playbook playbooks/site.yml --check</code></pre>
+            </div>
+
+            <div class="step">
+                <h3><span class="step-number">2</span> Execute Playbook</h3>
+                <p>Deploy the cluster:</p>
+                <pre><code>ansible-playbook playbooks/site.yml</code></pre>
+            </div>
+
+            <div class="step">
+                <h3><span class="step-number">3</span> Get Join Commands</h3>
+                <p>SSH to master1 and retrieve join commands:</p>
+                <pre><code>ssh user@master1-ip
+cat /tmp/kubeadm-init-output.txt</code></pre>
+            </div>
+
+            <div class="step">
+                <h3><span class="step-number">4</span> Verify Cluster</h3>
+                <pre><code>kubectl get nodes
+kubectl get pods -n kube-system</code></pre>
+            </div>
+
+            <div class="info-box success">
+                <h3><i class="fas fa-check-circle"></i> Congratulations!</h3>
+                <p>You've successfully automated a Kubernetes HA cluster deployment using Ansible! 🎉</p>
+            </div>
+        </section>
+
+        <!-- Advanced Tips -->
+        <section>
+            <h2><i class="fas fa-lightbulb"></i> Advanced Tips</h2>
+
+            <h3><i class="fas fa-key"></i> Using Ansible Vault for Secrets</h3>
+            <p>Encrypt sensitive data like passwords:</p>
+            <pre><code># Create encrypted file
+ansible-vault create group_vars/secrets.yml
+
+# Edit encrypted file
+ansible-vault edit group_vars/secrets.yml
+
+# Run playbook with vault
+ansible-playbook playbooks/site.yml --ask-vault-pass</code></pre>
+
+            <h3><i class="fas fa-tags"></i> Running Specific Tasks</h3>
+            <p>Use tags to run only certain parts:</p>
+            <pre><code># Run only load balancer setup
+ansible-playbook playbooks/site.yml --tags "haproxy"
+
+# Skip certain tasks
+ansible-playbook playbooks/site.yml --skip-tags "cni"</code></pre>
+
+            <h3><i class="fas fa-code-branch"></i> Version Control</h3>
+            <p>Store your playbooks in Git:</p>
+            <pre><code>git init
+git add .
+git commit -m "Initial Kubernetes automation setup"
+git remote add origin <your-repo-url>
+git push -u origin main</code></pre>
+        </section>
+
+        <!-- Troubleshooting -->
+        <section>
+            <h2><i class="fas fa-bug"></i> Troubleshooting</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Issue</th>
+                        <th>Solution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>SSH connection failed</td>
+                        <td>Check SSH keys with <code>ansible all -m ping</code></td>
+                    </tr>
+                    <tr>
+                        <td>Permission denied</td>
+                        <td>Ensure user has sudo privileges without password</td>
+                    </tr>
+                    <tr>
+                        <td>Task failed on certain hosts</td>
+                        <td>Run with <code>-vvv</code> for verbose output</td>
+                    </tr>
+                    <tr>
+                        <td>Playbook hangs</td>
+                        <td>Check firewall rules and network connectivity</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Debug Commands:</h4>
+            <pre><code># Test connectivity
+ansible all -m ping
+
+# Run with verbose output
+ansible-playbook playbooks/site.yml -vvv
+
+# Check syntax
+ansible-playbook playbooks/site.yml --syntax-check
+
+# List hosts
+ansible all --list-hosts</code></pre>
+        </section>
+
+        <!-- Next Steps -->
+        <section>
+            <h2><i class="fas fa-forward"></i> Next Steps</h2>
+            <ul>
+                <li>Add monitoring automation (Prometheus, Grafana)</li>
+                <li>Automate certificate rotation</li>
+                <li>Create roles for application deployment</li>
+                <li>Set up CI/CD pipelines with Ansible</li>
+                <li>Explore Ansible Tower/AWX for web UI</li>
+                <li>Learn about <a href="k8s_security.html">Kubernetes security</a></li>
+                <li>Configure <a href="rbac_setup.html">RBAC policies</a></li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-heart"></i> Created by Sharmaji Cloud Wale | <a href="https://github.com/ashish02510gh" target="_blank"><i class="fab fa-github"></i> GitHub</a></p>
+        <p>&copy; 2025 Kubernetes Insights</p>
+    </footer>
+</body>
+</html>
+

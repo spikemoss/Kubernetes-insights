@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Policies | Kubernetes Security Guide</title>
+    <meta name="description" content="Kubernetes Network Policies: pod-to-pod communication, ingress/egress rules, zero-trust networking, and service mesh integration">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root { --primary: #1e40af; --primary-light: #3b82f6; --accent: #06b6d4; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --bg-light: #f8fafc; --bg-card: #ffffff; --text-dark: #0f172a; --text-gray: #64748b; --border: #e2e8f0; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1); --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%); color: var(--text-dark); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
+        header { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 3rem 2rem; text-align: center; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
+        header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,96C1248,75,1344,53,1392,42.7L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom; background-size: cover; opacity: 0.3; }
+        .back-link { display: inline-flex; align-items: center; gap: 0.5rem; color: white; text-decoration: none; margin-bottom: 1.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px; transition: all 0.3s; position: relative; z-index: 1; }
+        .back-link:hover { background: rgba(255,255,255,0.3); }
+        header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; position: relative; z-index: 1; }
+        header p { font-size: 1.125rem; opacity: 0.95; position: relative; z-index: 1; }
+        main { flex: 1; max-width: 1000px; width: 100%; margin: 0 auto; padding: 3rem 2rem; }
+        .intro-section { background: var(--bg-card); padding: 2rem; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 2rem; }
+        .intro-section h2 { font-size: 1.875rem; color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem; }
+        .intro-section h3 { font-size: 1.375rem; color: var(--primary); margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .intro-section p { color: var(--text-gray); font-size: 1rem; line-height: 1.75; margin-bottom: 1rem; }
+        .intro-section ul, .intro-section ol { color: var(--text-gray); margin-left: 2rem; margin-bottom: 1rem; }
+        .intro-section li { margin-bottom: 0.5rem; line-height: 1.75; }
+        .code-block { background: #1e1e1e; color: #d4d4d4; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6; border-left: 4px solid var(--accent); }
+        .info-box { background: #dbeafe; border-left: 4px solid var(--primary); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; }
+        .warning-box { background: #fef3c7; border-left: 4px solid var(--warning); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; background: var(--bg-card); }
+        table th { background: var(--primary); color: white; padding: 1rem; text-align: left; font-weight: 600; }
+        table td { padding: 1rem; border-bottom: 1px solid var(--border); }
+        footer { background: var(--text-dark); color: white; padding: 2rem; text-align: center; margin-top: auto; }
+        footer a { color: var(--accent); text-decoration: none; }
+        @media (max-width: 768px) { header h1 { font-size: 2rem; } main { padding: 2rem 1rem; } }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/cloud-native-blogs/kubernetes/k8s_security_index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Security Guide
+        </a>
+        <h1><i class="fas fa-project-diagram"></i> Network Policies</h1>
+        <p>Pod Communication, Ingress/Egress Rules, and Zero-Trust Networking</p>
+    </header>
+
+    <main>
+        <section class="intro-section">
+            <h2><i class="fas fa-shield-alt"></i> Network Policies Overview</h2>
+            <p>
+                By default, all Kubernetes pods can communicate with any other pod in the cluster. Network Policies 
+                enable you to define rules that restrict traffic between pods, implementing the principle of least privilege 
+                at the network level. This is critical for multi-tenant and security-conscious environments.
+            </p>
+            <div class="info-box">
+                <strong>💡 Key Insight:</strong> Without network policies, a compromised pod can access all other pods 
+                and services in the cluster. Network segmentation is a critical security control.
+            </div>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-network-wired"></i> Network Policy Concepts</h2>
+            <h3>Pod Selectors</h3>
+            <p>Identify which pods the policy applies to:</p>
+            <div class="code-block">
+podSelector:
+  matchLabels:
+    tier: backend
+            </div>
+
+            <h3>Ingress Rules</h3>
+            <p>Control incoming traffic to pods:</p>
+            <ul>
+                <li>From specific pods (pod selectors)</li>
+                <li>From specific namespaces</li>
+                <li>On specific ports and protocols</li>
+            </ul>
+
+            <h3>Egress Rules</h3>
+            <p>Control outgoing traffic from pods:</p>
+            <ul>
+                <li>To specific pods</li>
+                <li>To external IPs</li>
+                <li>On specific ports and protocols</li>
+            </ul>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-code"></i> Network Policy Examples</h2>
+
+            <h3>1. Default Deny All Incoming Traffic</h3>
+            <div class="code-block">
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+            </div>
+
+            <h3>2. Allow Specific Pod Communication</h3>
+            <div class="code-block">
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-backend
+spec:
+  podSelector:
+    matchLabels:
+      tier: backend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          tier: frontend
+    ports:
+    - protocol: TCP
+      port: 8080
+            </div>
+
+            <h3>3. Allow Egress to DNS</h3>
+            <div class="code-block">
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-egress
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
+            </div>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-tools"></i> Network Policy Implementations</h2>
+
+            <h3>CNI Implementations</h3>
+            <table>
+                <tr>
+                    <th>CNI Plugin</th>
+                    <th>Network Policy Support</th>
+                </tr>
+                <tr>
+                    <td><strong>Calico</strong></td>
+                    <td>Full support, advanced policies</td>
+                </tr>
+                <tr>
+                    <td><strong>Cilium</strong></td>
+                    <td>Full support, eBPF-based, advanced features</td>
+                </tr>
+                <tr>
+                    <td><strong>Flannel</strong></td>
+                    <td>Basic support (with additional tools)</td>
+                </tr>
+                <tr>
+                    <td><strong>Weave</strong></td>
+                    <td>Full support</td>
+                </tr>
+            </table>
+
+            <h3>Service Mesh Approach</h3>
+            <p>For advanced traffic management, use service mesh:</p>
+            <ul>
+                <li><strong>Istio:</strong> VirtualService and DestinationRule for fine-grained control</li>
+                <li><strong>Linkerd:</strong> Lightweight, built-in security</li>
+                <li><strong>Consul:</strong> Multi-cluster networking</li>
+            </ul>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-check-circle"></i> Best Practices</h2>
+            <ul>
+                <li><strong>Start with Deny All:</strong> Create a default deny policy, then allow specific traffic</li>
+                <li><strong>Label Everything:</strong> Use consistent labels for pod selection</li>
+                <li><strong>Document Policies:</strong> Maintain clear documentation of traffic flows</li>
+                <li><strong>Test Thoroughly:</strong> Test policies in staging before production</li>
+                <li><strong>Monitor Traffic:</strong> Use tools like Cilium to visualize and monitor traffic</li>
+                <li><strong>Regular Audits:</strong> Review policies regularly to remove unused rules</li>
+            </ul>
+
+            <div class="warning-box">
+                <strong>⚠️ Important:</strong> Not all CNI plugins support network policies. Verify your CNI implementation 
+                before relying on network policies for security.
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-heart"></i> Built with passion for the Cloud-Native community</p>
+        <p>&copy; 2025 Kubernetes Insights</p>
+    </footer>
+</body>
+</html>

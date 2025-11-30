@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compliance & Security Standards | Kubernetes</title>
+    <meta name="description" content="Kubernetes compliance: CIS benchmarks, PCI-DSS, HIPAA, SOC 2, and automated compliance checking">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root { --primary: #1e40af; --primary-light: #3b82f6; --accent: #06b6d4; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --bg-light: #f8fafc; --bg-card: #ffffff; --text-dark: #0f172a; --text-gray: #64748b; --border: #e2e8f0; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1); --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%); color: var(--text-dark); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
+        header { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 3rem 2rem; text-align: center; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
+        header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,96C1248,75,1344,53,1392,42.7L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom; background-size: cover; opacity: 0.3; }
+        .back-link { display: inline-flex; align-items: center; gap: 0.5rem; color: white; text-decoration: none; margin-bottom: 1.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px; transition: all 0.3s; position: relative; z-index: 1; }
+        .back-link:hover { background: rgba(255,255,255,0.3); }
+        header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; position: relative; z-index: 1; }
+        header p { font-size: 1.125rem; opacity: 0.95; position: relative; z-index: 1; }
+        main { flex: 1; max-width: 1000px; width: 100%; margin: 0 auto; padding: 3rem 2rem; }
+        .intro-section { background: var(--bg-card); padding: 2rem; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 2rem; }
+        .intro-section h2 { font-size: 1.875rem; color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem; }
+        .intro-section h3 { font-size: 1.375rem; color: var(--primary); margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .intro-section p { color: var(--text-gray); font-size: 1rem; line-height: 1.75; margin-bottom: 1rem; }
+        .intro-section ul { color: var(--text-gray); margin-left: 2rem; margin-bottom: 1rem; }
+        .intro-section li { margin-bottom: 0.5rem; line-height: 1.75; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        table th { background: var(--primary); color: white; padding: 1rem; text-align: left; font-weight: 600; }
+        table td { padding: 1rem; border-bottom: 1px solid var(--border); }
+        .info-box { background: #dbeafe; border-left: 4px solid var(--primary); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; }
+        footer { background: var(--text-dark); color: white; padding: 2rem; text-align: center; margin-top: auto; }
+        footer a { color: var(--accent); text-decoration: none; }
+        @media (max-width: 768px) { header h1 { font-size: 2rem; } main { padding: 2rem 1rem; } }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/cloud-native-blogs/kubernetes/k8s_security_index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Security Guide
+        </a>
+        <h1><i class="fas fa-balance-scale"></i> Compliance & Standards</h1>
+        <p>Meeting Industry Security Standards and Regulatory Requirements</p>
+    </header>
+
+    <main>
+        <section class="intro-section">
+            <h2><i class="fas fa-shield-alt"></i> Compliance Overview</h2>
+            <p>
+                Organizations running Kubernetes must comply with industry standards and regulations. CIS Benchmarks, PCI-DSS, 
+                HIPAA, SOC 2, and others define security requirements. This guide covers how to achieve and maintain compliance 
+                in Kubernetes clusters.
+            </p>
+            <div class="info-box">
+                <strong>💡 Key Insight:</strong> Compliance is not a one-time checklist—it requires continuous 
+                monitoring, auditing, and improvement.
+            </div>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-check"></i> CIS Kubernetes Benchmark</h2>
+            <p>
+                The Center for Internet Security (CIS) Kubernetes Benchmark provides security best practices for 
+                Kubernetes clusters. It covers control plane security, worker node security, and policies.
+            </p>
+
+            <h3>Key CIS Control Areas</h3>
+            <table>
+                <tr>
+                    <th>Category</th>
+                    <th>Focus Areas</th>
+                </tr>
+                <tr>
+                    <td><strong>Control Plane</strong></td>
+                    <td>API server, etcd, scheduler, controller manager security</td>
+                </tr>
+                <tr>
+                    <td><strong>Worker Nodes</strong></td>
+                    <td>Kubelet configuration, OS security, runtime security</td>
+                </tr>
+                <tr>
+                    <td><strong>Policies</strong></td>
+                    <td>RBAC, network policies, pod security policies</td>
+                </tr>
+                <tr>
+                    <td><strong>Compliance</strong></td>
+                    <td>Audit logging, monitoring, vulnerability scanning</td>
+                </tr>
+            </table>
+
+            <h3>CIS Benchmark Scanning</h3>
+            <ul>
+                <li><strong>kube-bench:</strong> Automated CIS benchmark checker</li>
+                <li><strong>Kubesec:</strong> Static YAML analysis</li>
+                <li><strong>Polaris:</strong> Configuration auditing and hardening</li>
+            </ul>
+
+            <h3>Run kube-bench</h3>
+            <p>Quick CIS benchmark assessment:</p>
+            <ul>
+                <li>Install: <code>wget https://github.com/aquasecurity/kube-bench/releases/download/v0.7.0/kube-bench_linux_x86_64.tar.gz</code></li>
+                <li>Run: <code>./kube-bench run</code></li>
+                <li>Output: Pass/Fail/Warn for each CIS control</li>
+            </ul>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-lock"></i> Compliance Frameworks</h2>
+
+            <h3>PCI-DSS (Payment Card Industry)</h3>
+            <p>Required if processing payment card data:</p>
+            <ul>
+                <li>Encryption for data at rest and in transit</li>
+                <li>Access control and RBAC</li>
+                <li>Audit logging and monitoring</li>
+                <li>Regular vulnerability scanning</li>
+                <li>Incident response procedures</li>
+            </ul>
+
+            <h3>HIPAA (Health Insurance Portability)</h3>
+            <p>Required for healthcare applications:</p>
+            <ul>
+                <li>Encryption of PHI (Protected Health Information)</li>
+                <li>Access controls and authentication</li>
+                <li>Audit logging and accountability</li>
+                <li>Data integrity controls</li>
+                <li>Disaster recovery and backup</li>
+            </ul>
+
+            <h3>SOC 2 (Service Organization Control)</h3>
+            <p>For SaaS and service providers:</p>
+            <ul>
+                <li>Security: Access controls, encryption, monitoring</li>
+                <li>Availability: Uptime SLAs, disaster recovery</li>
+                <li>Processing Integrity: Data accuracy and completeness</li>
+                <li>Confidentiality: Data protection controls</li>
+                <li>Privacy: Data handling and consent management</li>
+            </ul>
+
+            <h3>ISO 27001 (Information Security)</h3>
+            <p>International information security standard:</p>
+            <ul>
+                <li>Risk assessment and management</li>
+                <li>Security policies and procedures</li>
+                <li>Access control</li>
+                <li>Incident management</li>
+                <li>Continuous improvement</li>
+            </ul>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-robot"></i> Automated Compliance Checking</h2>
+
+            <h3>Tools & Solutions</h3>
+            <table>
+                <tr>
+                    <th>Tool</th>
+                    <th>Purpose</th>
+                </tr>
+                <tr>
+                    <td><strong>Polaris</strong></td>
+                    <td>Audit configuration against best practices</td>
+                </tr>
+                <tr>
+                    <td><strong>kube-bench</strong></td>
+                    <td>CIS Kubernetes Benchmark automation</td>
+                </tr>
+                <tr>
+                    <td><strong>Kubesec</strong></td>
+                    <td>YAML security analysis</td>
+                </tr>
+                <tr>
+                    <td><strong>OPA/Gatekeeper</strong></td>
+                    <td>Policy as code for compliance enforcement</td>
+                </tr>
+                <tr>
+                    <td><strong>Falco</strong></td>
+                    <td>Runtime security and threat detection</td>
+                </tr>
+            </table>
+
+            <h3>Continuous Compliance with OPA</h3>
+            <p>Use OPA (Open Policy Agent) for policy-as-code:</p>
+            <ul>
+                <li>Define compliance rules in Rego language</li>
+                <li>Enforce policies at admission time</li>
+                <li>Audit existing resources</li>
+                <li>Generate compliance reports</li>
+            </ul>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-clipboard-list"></i> Compliance Checklist</h2>
+            <ul>
+                <li>✓ Run CIS benchmark assessment (kube-bench)</li>
+                <li>✓ Remediate critical and high findings</li>
+                <li>✓ Implement RBAC with least privilege</li>
+                <li>✓ Enable encryption at rest (etcd, secrets)</li>
+                <li>✓ Enable audit logging for all API access</li>
+                <li>✓ Implement network policies</li>
+                <li>✓ Enable Pod Security Standards</li>
+                <li>✓ Scan images for vulnerabilities</li>
+                <li>✓ Implement admission controllers</li>
+                <li>✓ Enable runtime monitoring (Falco)</li>
+                <li>✓ Regular backup and DR testing</li>
+                <li>✓ Documented security procedures</li>
+                <li>✓ Quarterly compliance assessments</li>
+                <li>✓ Incident response plan</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-heart"></i> Built with passion for the Cloud-Native community</p>
+        <p>&copy; 2025 Kubernetes Insights</p>
+    </footer>
+</body>
+</html>

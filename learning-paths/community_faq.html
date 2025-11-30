@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Community & FAQ | Contributing & Support</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,96C1248,75,1344,53,1392,42.7L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.3;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .intro-section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border-left: 4px solid #0284c7;
+        }
+
+        .intro-section h2 {
+            font-size: 1.875rem;
+            color: #0284c7;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .faq-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border-left: 4px solid #0284c7;
+        }
+
+        .faq-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .faq-item {
+            background: linear-gradient(135deg, #dbeafe 0%, #ffffff 100%);
+            border-left: 4px solid #0284c7;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .faq-item h4 {
+            color: #0284c7;
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .faq-item p {
+            color: var(--text-gray);
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #bfdbfe;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .nav-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border-left: 4px solid #0284c7;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .nav-card h3 {
+            font-size: 1.3rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-card a {
+            color: #0284c7;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        .nav-card a:hover {
+            opacity: 0.7;
+            text-decoration: underline;
+        }
+
+        .contributing-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #f0f9ff 100%);
+            border-left: 4px solid #0284c7;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .contributing-box h3 {
+            color: #0284c7;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .contributing-box ol {
+            list-style-position: inside;
+        }
+
+        .contributing-box li {
+            padding: 0.75rem 0;
+            color: var(--text-gray);
+        }
+
+        .code-inline {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        footer a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        ul, ol {
+            margin-left: 1.5rem;
+        }
+
+        ul li, ol li {
+            padding: 0.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+
+            .faq-grid, .nav-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/cloud-native-blogs/index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+        <h1><i class="fas fa-comments"></i> Community & FAQ</h1>
+        <p>Get Involved, Find Answers & Connect with Other Kubernetes Enthusiasts</p>
+    </header>
+
+    <main>
+        <section class="intro-section">
+            <h2><i class="fas fa-handshake"></i> Welcome to Our Community</h2>
+            <p>
+                The Kubernetes community is welcoming and collaborative. Whether you're a beginner asking your first question 
+                or an expert contributing code, there's a place for you. This page provides answers to common questions and guides 
+                on how to contribute and get involved.
+            </p>
+        </section>
+
+        <!-- FAQ Section -->
+        <div class="section-header">
+            <h2><i class="fas fa-question"></i> Frequently Asked Questions</h2>
+            <p>Answers to common questions from community members</p>
+        </div>
+
+        <div class="faq-item">
+            <h4><i class="fas fa-circle"></i> How do I get started with Kubernetes?</h4>
+            <p><strong>Answer:</strong> Start with the official Kubernetes documentation at kubernetes.io/docs. Set up a local environment using Minikube, Kind, or Docker Desktop. Follow the "Getting Started" guide on this site for installation steps. Practice basic commands like kubectl create, get, describe, and logs.</p>
+        </div>
+
+        <div class="faq-item">
+            <h4><i class="fas fa-circle"></i> What's the difference between kubectl and helm?</h4>
+            <p><strong>Answer:</strong> <span class="code-inline">kubectl</span> is the Kubernetes command-line tool for managing clusters and resources directly. Helm is a package manager for Kubernetes that uses charts (bundles of YAML templates) to simplify deployments. Use kubectl for direct management; use Helm for packaging and distribution.</p>
+        </div>
+
+        <div class="faq-item">
+            <h4><i class="fas fa-circle"></i> How do I debug a failing Pod?</h4>
+            <p><strong>Answer:</strong> Use these commands: 
+            <br><code style="background: #1e1e1e; color: #d4d4d4; padding: 0.2rem 0.4rem; border-radius: 4px;">kubectl describe pod &lt;name&gt;</code> (check events)
+            <br><code style="background: #1e1e1e; color: #d4d4d4; padding: 0.2rem 0.4rem; border-radius: 4px;">kubectl logs &lt;name&gt;</code> (check application logs)
+            <br><code style="background: #1e1e1e; color: #d4d4d4; padding: 0.2rem 0.4rem; border-radius: 4px;">kubectl exec -it &lt;name&gt; -- /bin/sh</code> (shell into container)
+            <br>Check the "Troubleshooting & Debugging" page for detailed guidance.</p>
+        </div>
+
+        <div class="faq-item">
+            <h4><i class="fas fa-circle"></i> What are the security best practices?</h4>
+            <p><strong>Answer:</strong> Key practices: Use RBAC to restrict permissions, enforce network policies, scan container images for vulnerabilities, use secrets management tools, run containers as non-root, enable Pod Security Policies, implement audit logging, and keep Kubernetes updated. See the "Cluster Security & RBAC" page for detailed guidance.</p>
+        </div>
+
+        <div class="faq-item">
+            <h4><i class="fas fa-circle"></i> How do I scale my application?</h4>
+            <p><strong>Answer:</strong> Use Horizontal Pod Autoscaling (HPA) to automatically scale based on CPU/memory or custom metrics. Use Vertical Pod Autoscaling (VPA) for right-sizing resource requests. Use Cluster Autoscaling to add/remove nodes. See the "Cost Optimization" page for implementation examples.</p>
+        </div>
+
+        <div class="faq-item">
+            <h4><i class="fas fa-circle"></i> Should I use a service mesh?</h4>
+            <p><strong>Answer:</strong> Service meshes (Istio, Linkerd) add advanced networking, security, and observability. They're valuable for complex microservices architectures, but add operational overhead. Start without one; adopt if you need traffic splitting, mutual TLS, or distributed tracing. See "Advanced Topics" for comparison.</p>
+        </div>
+
+        <div class="faq-item">
+            <h4><i class="fas fa-circle"></i> What's the proper way to update a Deployment?</h4>
+            <p><strong>Answer:</strong> Use rolling updates (default) for zero-downtime deployments, blue-green deployments for atomic switches, or canary deployments for gradual rollout. Update the Deployment spec; the rolling update controller handles the rest. Use readiness/liveness probes for health checks during updates.</p>
+        </div>
+
+        <div class="faq-item">
+            <h4><i class="fas fa-circle"></i> How do I handle stateful applications?</h4>
+            <p><strong>Answer:</strong> Use StatefulSets for ordered, stable pod identities and persistent storage. Use persistent volumes (PV) and persistent volume claims (PVC) for data durability. Consider managed databases (AWS RDS, Cloud SQL) for production workloads. See "Real-World Examples" for database deployment patterns.</p>
+        </div>
+
+        <!-- Contributing Section -->
+        <div class="section-header">
+            <h2><i class="fas fa-code"></i> Contributing to Kubernetes</h2>
+            <p>How to contribute to the open-source project</p>
+        </div>
+
+        <div class="contributing-box">
+            <h3><i class="fas fa-star"></i> Ways to Contribute</h3>
+            <ul>
+                <li><strong>Code:</strong> Fix bugs, implement features, improve performance. Start with issues labeled "good first issue" or "help wanted".</li>
+                <li><strong>Documentation:</strong> Write guides, fix typos, improve clarity. Documentation is crucial for all skill levels.</li>
+                <li><strong>Testing:</strong> Write tests, report bugs, test new features on different environments.</li>
+                <li><strong>Community:</strong> Answer questions in Slack/forums, lead local meetups, speak at conferences.</li>
+                <li><strong>SIGs:</strong> Join Special Interest Groups (SIGs) focusing on specific areas: API machinery, cluster management, network, security, storage, etc.</li>
+            </ul>
+        </div>
+
+        <div class="contributing-box">
+            <h3><i class="fas fa-tasks"></i> Steps to Contribute Code</h3>
+            <ol>
+                <li><strong>Setup:</strong> Fork the kubernetes/kubernetes repository on GitHub</li>
+                <li><strong>Branch:</strong> Create a feature branch from main: <code style="background: #1e1e1e; color: #d4d4d4; padding: 0.2rem 0.4rem; border-radius: 4px;">git checkout -b my-feature</code></li>
+                <li><strong>Code:</strong> Make changes following the contribution guidelines and code style</li>
+                <li><strong>Tests:</strong> Add/update tests to ensure your changes work correctly</li>
+                <li><strong>Commit:</strong> Write clear, descriptive commit messages</li>
+                <li><strong>Push:</strong> Push to your fork: <code style="background: #1e1e1e; color: #d4d4d4; padding: 0.2rem 0.4rem; border-radius: 4px;">git push origin my-feature</code></li>
+                <li><strong>PR:</strong> Open a Pull Request with detailed description of changes</li>
+                <li><strong>Review:</strong> Respond to reviewer feedback and make requested changes</li>
+                <li><strong>Merge:</strong> Your PR is merged when approved</li>
+            </ol>
+        </div>
+
+        <!-- Community Platforms -->
+        <div class="section-header">
+            <h2><i class="fas fa-network-wired"></i> Community Platforms & Forums</h2>
+            <p>Connect with other Kubernetes enthusiasts</p>
+        </div>
+
+        <div class="nav-grid">
+            <div class="nav-card">
+                <h3><i class="fas fa-slack"></i> Kubernetes Slack</h3>
+                <p>Join 100K+ Kubernetes community members. Official workspace with channels for every topic, from beginner questions to advanced discussions.</p>
+                <a href="https://kubernetes.slack.com/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Join Slack Workspace
+                </a>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fab fa-reddit"></i> r/kubernetes Subreddit</h3>
+                <p>Active subreddit with daily discussions, job postings, news, and community events. Great for sharing experiences and learning.</p>
+                <a href="https://www.reddit.com/r/kubernetes/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Visit Subreddit
+                </a>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fab fa-stack-overflow"></i> Stack Overflow</h3>
+                <p>Ask technical questions and get answers from experienced community members. Search before asking to avoid duplicates.</p>
+                <a href="https://stackoverflow.com/questions/tagged/kubernetes" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Kubernetes Questions
+                </a>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fab fa-github"></i> GitHub Discussions</h3>
+                <p>Discuss Kubernetes features, share ideas, and engage in project governance. Great for long-form conversations.</p>
+                <a href="https://github.com/kubernetes/kubernetes/discussions" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> GitHub Discussions
+                </a>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-calendar-alt"></i> Meetups & Events</h3>
+                <p>Attend local Kubernetes meetups, KubeCon conferences, and CloudNativeCon events. Network with other enthusiasts and learn from experts.</p>
+                <a href="https://www.cncf.io/events/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Find Events
+                </a>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-globe"></i> CNCF Community</h3>
+                <p>Part of the Cloud Native Computing Foundation. Connect with the broader cloud-native ecosystem including Kubernetes, Prometheus, Envoy, etc.</p>
+                <a href="https://www.cncf.io/community/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> CNCF Community
+                </a>
+            </div>
+        </div>
+
+        <!-- Getting Help Section -->
+        <div class="section-header">
+            <h2><i class="fas fa-life-ring"></i> Getting Help & Support</h2>
+            <p>Where to find answers and assistance</p>
+        </div>
+
+        <div class="nav-grid">
+            <div class="nav-card">
+                <h3><i class="fas fa-book"></i> Official Documentation</h3>
+                <p>Comprehensive guides, API references, and tutorials. Always check here first—most questions are answered in the docs.</p>
+                <a href="https://kubernetes.io/docs/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Kubernetes Docs
+                </a>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-search"></i> Search Issues</h3>
+                <p>Check if your issue has been reported before. Search GitHub issues for bugs and feature requests. Read through existing discussions.</p>
+                <a href="https://github.com/kubernetes/kubernetes/issues" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> GitHub Issues
+                </a>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-comments"></i> Slack Channels</h3>
+                <p>Ask questions in #kubernetes-usage, #general, or topic-specific channels. Experienced members usually respond quickly with helpful answers.</p>
+                <a href="https://kubernetes.slack.com/archives/C0EG7JC6T" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Usage Channel
+                </a>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-server"></i> Commercial Support</h3>
+                <p>Many vendors offer commercial Kubernetes support: Red Hat OpenShift, Canonical MicroK8s, Docker Enterprise, AWS EKS, Google GKE, Azure AKS.</p>
+                <a href="https://kubernetes.io/partners/#consulting" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Find Partners
+                </a>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-bug"></i> Report a Bug</h3>
+                <p>Found a bug? Report it on GitHub with details, reproduction steps, and expected behavior. Help us improve Kubernetes!</p>
+                <a href="https://github.com/kubernetes/kubernetes/issues/new/choose" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Report Bug
+                </a>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-lightbulb"></i> Feature Requests</h3>
+                <p>Have a feature idea? Discuss it in the community first (Slack, forums) then open a GitHub discussion or issue if appropriate.</p>
+                <a href="https://github.com/kubernetes/kubernetes/discussions" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Discuss Features
+                </a>
+            </div>
+        </div>
+
+        <!-- Code of Conduct -->
+        <div class="contributing-box">
+            <h3><i class="fas fa-heart"></i> Community Code of Conduct</h3>
+            <p>The Kubernetes community is committed to providing a welcoming and inspiring environment. We pledge to:</p>
+            <ul>
+                <li>Be inclusive and respect diverse backgrounds and experiences</li>
+                <li>Be respectful of differing opinions and viewpoints</li>
+                <li>Give credit where credit is due</li>
+                <li>Provide constructive feedback and focus on what is best for the community</li>
+                <li>Show empathy towards other community members</li>
+            </ul>
+            <p style="margin-top: 1rem;"><a href="https://www.cncf.io/conduct/" target="_blank" style="color: #0284c7; text-decoration: underline;">Read Full Code of Conduct</a></p>
+        </div>
+
+        <!-- Final CTA -->
+        <div class="contributing-box" style="background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%); color: white; border-left: 4px solid white; margin-top: 3rem;">
+            <h3 style="color: white; margin-bottom: 1rem;"><i class="fas fa-rocket"></i> Ready to Get Involved?</h3>
+            <p style="color: rgba(255,255,255,0.9);">
+                The Kubernetes community is always looking for passionate contributors. Whether it's your first contribution or your hundredth, 
+                we welcome you. Start small, be respectful, and enjoy being part of a thriving open-source project that's transforming 
+                how we build and deploy applications.
+            </p>
+            <p style="margin-top: 1.5rem;">
+                <a href="https://kubernetes.io/community/contribute/" target="_blank" style="color: white; text-decoration: underline; font-weight: 600;">Learn How to Contribute →</a>
+            </p>
+        </div>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-users"></i> Join the thriving Kubernetes community and be part of something amazing!</p>
+        <p>&copy; 2025 Kubernetes Insights by Sharmaji Cloud Wale | 
+            <a href="https://github.com/ashish02510gh" target="_blank"><i class="fab fa-github"></i> GitHub</a> | 
+            <a href="https://www.linkedin.com/in/ashish02510/" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+        </p>
+    </footer>
+</body>
+</html>

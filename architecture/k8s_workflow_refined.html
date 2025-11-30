@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kubernetes Request Processing Flow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #1e40af;
+      --primary-light: #3b82f6;
+      --accent: #06b6d4;
+      --badge-purple: #a855f7;
+      --bg-light: #f0f5fc;
+      --bg-card: #ffffff;
+      --text-dark: #0f172a;
+      --text-gray: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 4px 6px rgba(0,0,0,0.1);
+      --font-family-body: 'Inter', sans-serif;
+      --font-family-mono: 'JetBrains Mono', monospace;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: var(--font-family-body);
+      background: linear-gradient(135deg, var(--bg-light), #e4ecf9);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header, footer {
+      background: var(--bg-card);
+      text-align: center;
+      padding: 16px 24px;
+      box-shadow: var(--shadow);
+    }
+    header h1 {
+      margin: 0;
+      font-weight: 700;
+      font-size: 2.25rem;
+      color: var(--primary);
+    }
+    main {
+      flex: 1;
+      max-width: 1000px;
+      margin: 32px auto;
+      padding: 0 20px;
+    }
+    .flowchart {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .flowchart img {
+      max-width: 100%;
+      height: auto;
+      box-shadow: var(--shadow);
+      border-radius: 8px;
+    }
+    section.workflow-step {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 30px;
+    }
+    section.workflow-step h2 {
+      color: var(--primary-light);
+      font-weight: 700;
+      font-size: 1.75rem;
+      margin-bottom: 14px;
+    }
+    p {
+      margin: 0 0 16px 0;
+      line-height: 1.5;
+      font-size: 1.1rem;
+    }
+    code {
+      display: block;
+      background-color: #1e293b;
+      color: #d1d5db;
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-family: var(--font-family-mono);
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+      margin-top: 10px;
+    }
+    footer p {
+      margin: 0;
+      font-size: 0.875rem;
+      color: var(--text-gray);
+      user-select: none;
+    }
+    @media (max-width: 600px) {
+      main {
+        padding: 0 15px;
+      }
+      section.workflow-step h2 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="/cloud-native-blogs/index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+            <h1><i class="fas fa-project-diagram"></i> Kubernetes Request Processing Flow</h1>
+            <p>Complete request flow from user request to get back the response</p>
+        </div>
+    </header>
+  <main>
+
+    <section class="workflow-step" id="step1">
+      <h2>1. User Sends a Request</h2>
+      <p>The user initiates the process by accessing the application URL, e.g. <strong>https://myapp.example.com</strong>. This request traverses the internet towards the Kubernetes cluster entry point.</p>
+    </section>
+
+    <section class="workflow-step" id="step2">
+      <h2>2. DNS Resolves the Domain</h2>
+      <p>The DNS server resolves the domain name <em>myapp.example.com</em> into the public IP of the Load Balancer. Common DNS services used include Azure DNS, Route 53, and Google Cloud DNS.</p>
+    </section>
+
+    <section class="workflow-step" id="step3">
+      <h2>3. Load Balancer</h2>
+      <p>A Layer 4 (L4) Load Balancer forwards traffic based on IP and port to the Ingress Controller inside the Kubernetes cluster. Examples include Azure Load Balancer and AWS ELB.</p>
+    </section>
+
+    <section class="workflow-step" id="step4">
+      <h2>4. Ingress Controller</h2>
+      <p>The Ingress Controller performs Layer 7 (HTTP/HTTPS) routing based on rules regarding hostnames and paths. It also handles SSL/TLS termination for secure traffic. Popular ingress controllers include NGINX Ingress, Traefik, and Istio Gateway.</p>
+      <code>
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myapp-ingress
+spec:
+  rules:
+  - host: myapp.example.com
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-service
+            port:
+              number: 8080
+      </code>
+    </section>
+
+    <section class="workflow-step" id="step5">
+      <h2>5. Kubernetes Service</h2>
+      <p>Kubernetes Services route incoming requests to the appropriate Pods via labels and selectors. They provide load balancing and stable IP/port access. Common Service types include ClusterIP, NodePort, and LoadBalancer.</p>
+      <code>
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+      </code>
+    </section>
+
+    <section class="workflow-step" id="step6">
+      <h2>6. Pods Process the Request</h2>
+      <p>Pods host the actual application containers which fulfill the incoming requests. They run the business logic and manage state as needed.</p>
+    </section>
+
+    <section class="workflow-step" id="step7">
+      <h2>7. Backend Communication</h2>
+      <p>Pods may communicate internally with other microservices, databases, or caching layers using internal DNS and service mesh technologies like Istio or Linkerd for security, retries, and traffic shaping.</p>
+    </section>
+
+    <section class="workflow-step" id="step8">
+      <h2>8. Response to the User</h2>
+      <p>The response generated by the Pods flows back through the Service → Ingress Controller → Load Balancer → User, completing the request lifecycle visibly and securely.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Created with ❤️ inspired by Cloud Native Architecture Flowchart Theme</p>
+  </footer>
+</body>
+</html>

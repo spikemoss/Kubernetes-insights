@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>etcd Security & Backup | Kubernetes Security</title>
+    <meta name="description" content="Securing etcd: encryption at rest, backup strategies, disaster recovery, and peer communication security">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root { --primary: #1e40af; --primary-light: #3b82f6; --accent: #06b6d4; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --bg-light: #f8fafc; --bg-card: #ffffff; --text-dark: #0f172a; --text-gray: #64748b; --border: #e2e8f0; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1); --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%); color: var(--text-dark); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
+        header { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 3rem 2rem; text-align: center; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
+        header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,96C1248,75,1344,53,1392,42.7L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom; background-size: cover; opacity: 0.3; }
+        .back-link { display: inline-flex; align-items: center; gap: 0.5rem; color: white; text-decoration: none; margin-bottom: 1.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px; transition: all 0.3s; position: relative; z-index: 1; }
+        .back-link:hover { background: rgba(255,255,255,0.3); }
+        header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; position: relative; z-index: 1; }
+        header p { font-size: 1.125rem; opacity: 0.95; position: relative; z-index: 1; }
+        main { flex: 1; max-width: 1000px; width: 100%; margin: 0 auto; padding: 3rem 2rem; }
+        .intro-section { background: var(--bg-card); padding: 2rem; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 2rem; }
+        .intro-section h2 { font-size: 1.875rem; color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem; }
+        .intro-section h3 { font-size: 1.375rem; color: var(--primary); margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .intro-section p { color: var(--text-gray); font-size: 1rem; line-height: 1.75; margin-bottom: 1rem; }
+        .intro-section ul { color: var(--text-gray); margin-left: 2rem; margin-bottom: 1rem; }
+        .intro-section li { margin-bottom: 0.5rem; line-height: 1.75; }
+        .code-block { background: #1e1e1e; color: #d4d4d4; padding: 1.5rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6; border-left: 4px solid var(--accent); }
+        .info-box { background: #dbeafe; border-left: 4px solid var(--primary); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; }
+        .warning-box { background: #fef3c7; border-left: 4px solid var(--warning); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; }
+        footer { background: var(--text-dark); color: white; padding: 2rem; text-align: center; margin-top: auto; }
+        footer a { color: var(--accent); text-decoration: none; }
+        @media (max-width: 768px) { header h1 { font-size: 2rem; } main { padding: 2rem 1rem; } }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/cloud-native-blogs/kubernetes/k8s_security_index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Security Guide
+        </a>
+        <h1><i class="fas fa-database"></i> etcd Security & Backup</h1>
+        <p>Protecting Kubernetes State Data and Disaster Recovery</p>
+    </header>
+
+    <main>
+        <section class="intro-section">
+            <h2><i class="fas fa-shield-alt"></i> etcd Security Overview</h2>
+            <p>
+                etcd is Kubernetes' data store—it holds all cluster configuration, state, and secrets. Compromise of etcd means 
+                complete cluster compromise. Securing etcd requires encryption, access control, backup strategies, and disaster recovery.
+            </p>
+            <div class="warning-box">
+                <strong>⚠️ Critical:</strong> etcd contains all cluster data including unencrypted secrets by default. 
+                It must be protected with the highest level of security.
+            </div>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-lock"></i> Encryption at Rest</h2>
+
+            <h3>Configure etcd Encryption</h3>
+            <p>Enable encryption for etcd data in Kubernetes:</p>
+            <div class="code-block">
+# In /etc/kubernetes/manifests/kube-apiserver.yaml
+- --encryption-provider-config=/etc/kubernetes/enc/encryption-config.yaml
+- --encryption-provider-config-automatic-reload=true
+            </div>
+
+            <h3>Encryption Configuration</h3>
+            <div class="code-block">
+apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+- resources:
+  - secrets
+  providers:
+  - aescbc:
+      keys:
+      - name: key1
+        secret: <base64-32-byte-key>
+  - identity: {}
+            </div>
+
+            <h3>Generate Encryption Key</h3>
+            <div class="code-block">
+# Generate 32-byte key and base64 encode
+head -c 32 /dev/urandom | base64
+            </div>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-network-wired"></i> etcd Peer Security</h2>
+
+            <h3>TLS Configuration</h3>
+            <ul>
+                <li><strong>Peer TLS:</strong> Encrypt communication between etcd members</li>
+                <li><strong>Client TLS:</strong> Encrypt API server to etcd communication</li>
+                <li><strong>Certificate Management:</strong> Regular certificate rotation</li>
+            </ul>
+
+            <h3>Configure Peer TLS</h3>
+            <div class="code-block">
+--cert-file=/etc/kubernetes/pki/etcd/server.crt
+--key-file=/etc/kubernetes/pki/etcd/server.key
+--peer-cert-file=/etc/kubernetes/pki/etcd/peer.crt
+--peer-key-file=/etc/kubernetes/pki/etcd/peer.key
+--peer-trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+            </div>
+
+            <h3>Access Control</h3>
+            <ul>
+                <li>Restrict etcd port (2379) to authorized clients only</li>
+                <li>Use firewall rules to block direct access</li>
+                <li>Only API server should directly access etcd</li>
+            </ul>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-save"></i> etcd Backup Strategy</h2>
+
+            <h3>Manual Backup</h3>
+            <div class="code-block">
+# Snapshot etcd database
+sudo etcdctl --endpoints=127.0.0.1:2379 snapshot save backup.db
+
+# Verify snapshot
+sudo etcdctl --write-out=table snapshot status backup.db
+            </div>
+
+            <h3>Automated Backup with Velero</h3>
+            <p>Use Velero for cluster-wide backup including etcd:</p>
+            <ul>
+                <li>Automated backup schedules</li>
+                <li>Point-in-time recovery</li>
+                <li>Multi-cloud support</li>
+                <li>Restore to different clusters</li>
+            </ul>
+
+            <h3>Backup Locations</h3>
+            <ul>
+                <li><strong>S3/Cloud Storage:</strong> Offsite encrypted backups</li>
+                <li><strong>Network Storage:</strong> NFS or similar for quick recovery</li>
+                <li><strong>Multiple Regions:</strong> Geo-redundant backups</li>
+            </ul>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-wrench"></i> Disaster Recovery</h2>
+
+            <h3>Restore from Backup</h3>
+            <div class="code-block">
+# Stop all API servers
+# Stop all etcd members
+
+# Restore from backup on one member
+sudo etcdctl snapshot restore backup.db \
+  --data-dir=/var/lib/etcd \
+  --initial-cluster=etcd0=https://master1:2380 \
+  --initial-advertise-peer-urls=https://master1:2380 \
+  --name=etcd0
+
+# Start etcd and API servers
+            </div>
+
+            <h3>Recovery RTO/RPO</h3>
+            <ul>
+                <li><strong>RTO (Recovery Time Objective):</strong> Minimize recovery time</li>
+                <li><strong>RPO (Recovery Point Objective):</strong> Minimize data loss</li>
+                <li>Regular backup testing essential</li>
+                <li>Document and practice recovery procedures</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>💡 Recommendation:</strong> Back up etcd every hour and test recovery procedures quarterly.
+            </div>
+        </section>
+
+        <section class="intro-section">
+            <h2><i class="fas fa-check-circle"></i> etcd Security Checklist</h2>
+            <ul>
+                <li>✓ Enable encryption at rest for etcd data</li>
+                <li>✓ Configure TLS for peer and client communication</li>
+                <li>✓ Implement access control to etcd</li>
+                <li>✓ Enable audit logging for API server</li>
+                <li>✓ Regular automated backups (hourly)</li>
+                <li>✓ Offsite backup storage</li>
+                <li>✓ Test disaster recovery quarterly</li>
+                <li>✓ Monitor etcd performance and health</li>
+                <li>✓ Keep etcd updated</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-heart"></i> Built with passion for the Cloud-Native community</p>
+        <p>&copy; 2025 Kubernetes Insights</p>
+    </footer>
+</body>
+</html>

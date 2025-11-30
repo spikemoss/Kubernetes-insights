@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Map | Cloud-Native Blogs</title>
+    <meta name="description" content="Complete site map of all Kubernetes and cloud-native documentation pages organized by category">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Root Variables */
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --success: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        /* Breadcrumb Navigation */
+        .breadcrumb {
+            background: var(--bg-light);
+            padding: 0.75rem 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .breadcrumb-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            max-width: 1200px;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb-item a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .breadcrumb-item a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        .breadcrumb-item a i {
+            font-size: 0.85rem;
+        }
+
+        .breadcrumb-item::after {
+            content: "/";
+            color: var(--text-gray);
+            margin-left: 0.5rem;
+            font-weight: 300;
+        }
+
+        .breadcrumb-item:last-child::after {
+            content: "";
+            margin: 0;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--text-gray);
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .intro-section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 3rem;
+        }
+
+        .intro-section h2 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .intro-section h2 i {
+            color: var(--accent);
+        }
+
+        .intro-section p {
+            color: var(--text-gray);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        /* Category Sections */
+        .sitemap-category {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+        }
+
+        .sitemap-category:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .category-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .category-title i {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .page-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .page-link {
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: 8px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            border-radius: 4px;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .page-link:hover {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+            border-left-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .page-link-icon {
+            font-size: 1.2rem;
+            color: var(--accent);
+            min-width: 24px;
+            margin-top: 0.2rem;
+        }
+
+        .page-link-content h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .page-link-content p {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            line-height: 1.4;
+        }
+
+        /* Statistics */
+        .sitemap-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            border-top: 3px solid var(--accent);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        footer a:hover {
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            main {
+                padding: 1.5rem 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .page-list {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <h1><i class="fas fa-sitemap"></i> Site Map</h1>
+            <a href="index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+        </div>
+    </header>
+
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol class="breadcrumb-list">
+            <li class="breadcrumb-item">
+                <a href="/cloud-native-blogs/index.html">
+                    <i class="fas fa-home"></i> Home
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Site Map
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Intro Section -->
+        <div class="intro-section">
+            <h2><i class="fas fa-map"></i> Complete Site Navigation</h2>
+            <p>
+                Explore all pages on the Cloud-Native Blogs repository organized by category. 
+                This sitemap contains <strong>50+ comprehensive guides</strong> covering Kubernetes, 
+                cloud architecture, security, CNCF tools, and learning paths.
+            </p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="sitemap-stats">
+            <div class="stat-card">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">Total Pages</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">7</div>
+                <div class="stat-label">Main Categories</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">100+</div>
+                <div class="stat-label">K8s Terms</div>
+            </div>
+        </div>
+
+        <!-- Quick Start -->
+        <div class="sitemap-category">
+            <div class="category-title">
+                <i class="fas fa-rocket"></i> Quick Start
+            </div>
+            <div class="page-list">
+                <a href="/cloud-native-blogs/core/getting_started.html" class="page-link">
+                    <i class="page-link-icon fas fa-play-circle"></i>
+                    <div class="page-link-content">
+                        <h3>Getting Started</h3>
+                        <p>Installation and setup guide</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/core/best_practices.html" class="page-link">
+                    <i class="page-link-icon fas fa-check-double"></i>
+                    <div class="page-link-content">
+                        <h3>Best Practices</h3>
+                        <p>Industry standards & conventions</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/core/troubleshooting_debugging.html" class="page-link">
+                    <i class="page-link-icon fas fa-bug"></i>
+                    <div class="page-link-content">
+                        <h3>Troubleshooting & Debugging</h3>
+                        <p>Common errors & solutions</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Security -->
+        <div class="sitemap-category">
+            <div class="category-title">
+                <i class="fas fa-shield-alt"></i> Security & Compliance
+            </div>
+            <div class="page-list">
+                <a href="/cloud-native-blogs/kubernetes/k8s_security_index.html" class="page-link">
+                    <i class="page-link-icon fas fa-lock"></i>
+                    <div class="page-link-content">
+                        <h3>Security Index</h3>
+                        <p>Comprehensive security guide hub</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/kubernetes/certificate_management.html" class="page-link">
+                    <i class="page-link-icon fas fa-certificate"></i>
+                    <div class="page-link-content">
+                        <h3>Certificate Management</h3>
+                        <p>TLS & PKI infrastructure</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/kubernetes/secrets_management.html" class="page-link">
+                    <i class="page-link-icon fas fa-key"></i>
+                    <div class="page-link-content">
+                        <h3>Secrets Management</h3>
+                        <p>Encryption & secure storage</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/kubernetes/network_policies.html" class="page-link">
+                    <i class="page-link-icon fas fa-project-diagram"></i>
+                    <div class="page-link-content">
+                        <h3>Network Policies</h3>
+                        <p>Pod communication control</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/kubernetes/pod_security.html" class="page-link">
+                    <i class="page-link-icon fas fa-cube"></i>
+                    <div class="page-link-content">
+                        <h3>Pod Security Standards</h3>
+                        <p>PSS levels & implementation</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/kubernetes/api_server_security.html" class="page-link">
+                    <i class="page-link-icon fas fa-server"></i>
+                    <div class="page-link-content">
+                        <h3>API Server Hardening</h3>
+                        <p>Authentication & authorization</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/kubernetes/etcd_security.html" class="page-link">
+                    <i class="page-link-icon fas fa-database"></i>
+                    <div class="page-link-content">
+                        <h3>etcd Encryption & Backup</h3>
+                        <p>Data protection & recovery</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/kubernetes/audit_logging_monitoring.html" class="page-link">
+                    <i class="page-link-icon fas fa-clipboard-list"></i>
+                    <div class="page-link-content">
+                        <h3>Audit Logging & Monitoring</h3>
+                        <p>Threat detection & alerting</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/kubernetes/compliance_standards.html" class="page-link">
+                    <i class="page-link-icon fas fa-balance-scale"></i>
+                    <div class="page-link-content">
+                        <h3>Compliance & Standards</h3>
+                        <p>CIS Benchmarks & frameworks</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/kubernetes/supply_chain_security.html" class="page-link">
+                    <i class="page-link-icon fas fa-link"></i>
+                    <div class="page-link-content">
+                        <h3>Supply Chain Security</h3>
+                        <p>Image signing & SBOM</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/kubernetes/rbac_setup.html" class="page-link">
+                    <i class="page-link-icon fas fa-user-lock"></i>
+                    <div class="page-link-content">
+                        <h3>RBAC Setup</h3>
+                        <p>Role-based access control</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Cloud Strategy -->
+        <div class="sitemap-category">
+            <div class="category-title">
+                <i class="fas fa-cloud"></i> Cloud Strategy
+            </div>
+            <div class="page-list">
+                <a href="/cloud-native-blogs/cloud-strategy/cloud_strategy_hub.html" class="page-link">
+                    <i class="page-link-icon fas fa-map"></i>
+                    <div class="page-link-content">
+                        <h3>Cloud Strategy Hub</h3>
+                        <p>Public/Private/Hybrid framework</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/cloud-strategy/cloud_industry_news.html" class="page-link">
+                    <i class="page-link-icon fas fa-newspaper"></i>
+                    <div class="page-link-content">
+                        <h3>Cloud & CNCF News</h3>
+                        <p>Industry developments</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/cloud-strategy/cost_optimization.html" class="page-link">
+                    <i class="page-link-icon fas fa-dollar-sign"></i>
+                    <div class="page-link-content">
+                        <h3>Cost Optimization</h3>
+                        <p>Resource management</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/cloud-strategy/cloud_comparison_refined.html" class="page-link">
+                    <i class="page-link-icon fas fa-balance-scale"></i>
+                    <div class="page-link-content">
+                        <h3>Cloud Comparison</h3>
+                        <p>Provider comparison</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- CNCF Ecosystem -->
+        <div class="sitemap-category">
+            <div class="category-title">
+                <i class="fas fa-toolbox"></i> CNCF Ecosystem
+            </div>
+            <div class="page-list">
+                <a href="/cloud-native-blogs/cncf-ecosystem/cncfscope.html" class="page-link">
+                    <i class="page-link-icon fas fa-book"></i>
+                    <div class="page-link-content">
+                        <h3>CNCF Tools Overview</h3>
+                        <p>Cloud native tools guide</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/cncf-ecosystem/technology_pillars_hub.html" class="page-link">
+                    <i class="page-link-icon fas fa-layer-group"></i>
+                    <div class="page-link-content">
+                        <h3>Technology Pillars</h3>
+                        <p>7 core technology areas</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/cncf-ecosystem/cncf_comparison_refined.html" class="page-link">
+                    <i class="page-link-icon fas fa-balance-scale"></i>
+                    <div class="page-link-content">
+                        <h3>CNCF vs Cloud Services</h3>
+                        <p>Tools vs cloud services</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/cncf-ecosystem/tools_ecosystems.html" class="page-link">
+                    <i class="page-link-icon fas fa-cogs"></i>
+                    <div class="page-link-content">
+                        <h3>Tools & Ecosystems</h3>
+                        <p>Helm, logging, monitoring</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Architecture -->
+        <div class="sitemap-category">
+            <div class="category-title">
+                <i class="fas fa-sitemap"></i> Architecture & Design
+            </div>
+            <div class="page-list">
+                <a href="/cloud-native-blogs/kubernetes/request_flow_k8s.html" class="page-link">
+                    <i class="page-link-icon fas fa-project-diagram"></i>
+                    <div class="page-link-content">
+                        <h3>Microservice Workflow</h3>
+                        <p>Request flow architecture</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/architecture/cloud_native_architecture_flowchart.html" class="page-link">
+                    <i class="page-link-icon fas fa-diagram"></i>
+                    <div class="page-link-content">
+                        <h3>Flow Diagrams</h3>
+                        <p>Architecture visualization</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/architecture/microservices_challenges_refined.html" class="page-link">
+                    <i class="page-link-icon fas fa-exclamation-triangle"></i>
+                    <div class="page-link-content">
+                        <h3>Microservices Challenges</h3>
+                        <p>Common challenges guide</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/architecture/k8s_workflow_refined.html" class="page-link">
+                    <i class="page-link-icon fas fa-code-branch"></i>
+                    <div class="page-link-content">
+                        <h3>K8s Workflow</h3>
+                        <p>Workflow patterns</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/architecture/flowchart.html" class="page-link">
+                    <i class="page-link-icon fas fa-flowchart"></i>
+                    <div class="page-link-content">
+                        <h3>Flowchart</h3>
+                        <p>Process flows</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Kubernetes Deep Dive -->
+        <div class="sitemap-category">
+            <div class="category-title">
+                <i class="fas fa-dharmachakra"></i> Kubernetes Deep Dive
+            </div>
+            <div class="page-list">
+                <a href="/cloud-native-blogs/kubernetes/glossary.html" class="page-link">
+                    <i class="page-link-icon fas fa-book"></i>
+                    <div class="page-link-content">
+                        <h3>Kubernetes & CNCF Glossary</h3>
+                        <p>100+ terms & definitions</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/kubernetes/k8s_ansible_guide.html" class="page-link">
+                    <i class="page-link-icon fas fa-play"></i>
+                    <div class="page-link-content">
+                        <h3>K8s Ansible Guide</h3>
+                        <p>Ansible automation</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/kubernetes/k8sguide_1.02_refined.html" class="page-link">
+                    <i class="page-link-icon fas fa-graduation-cap"></i>
+                    <div class="page-link-content">
+                        <h3>K8s Guide 1.02</h3>
+                        <p>Detailed K8s guide</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/kubernetes/microk8schallenges.html" class="page-link">
+                    <i class="page-link-icon fas fa-puzzle-piece"></i>
+                    <div class="page-link-content">
+                        <h3>MicroK8s Challenges</h3>
+                        <p>MicroK8s troubleshooting</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/kubernetes/image-scanning-registry.html" class="page-link">
+                    <i class="page-link-icon fas fa-scanner"></i>
+                    <div class="page-link-content">
+                        <h3>Image Scanning & Registry</h3>
+                        <p>Container image security</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Learning Paths -->
+        <div class="sitemap-category">
+            <div class="category-title">
+                <i class="fas fa-graduation-cap"></i> Learning Paths
+            </div>
+            <div class="page-list">
+                <a href="/cloud-native-blogs/learning-paths/advanced_topics.html" class="page-link">
+                    <i class="page-link-icon fas fa-star"></i>
+                    <div class="page-link-content">
+                        <h3>Advanced Topics</h3>
+                        <p>Operators, CRDs, service mesh</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/learning-paths/real_world_examples.html" class="page-link">
+                    <i class="page-link-icon fas fa-code"></i>
+                    <div class="page-link-content">
+                        <h3>Real-World Examples</h3>
+                        <p>Practical implementations</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/learning-paths/interview_prep.html" class="page-link">
+                    <i class="page-link-icon fas fa-briefcase"></i>
+                    <div class="page-link-content">
+                        <h3>Interview Preparation</h3>
+                        <p>Common questions</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/learning-paths/resources_library.html" class="page-link">
+                    <i class="page-link-icon fas fa-library"></i>
+                    <div class="page-link-content">
+                        <h3>Resources & Library</h3>
+                        <p>Tutorials & documentation</p>
+                    </div>
+                </a>
+                <a href="/cloud-native-blogs/learning-paths/community_faq.html" class="page-link">
+                    <i class="page-link-icon fas fa-comments"></i>
+                    <div class="page-link-content">
+                        <h3>Community & FAQ</h3>
+                        <p>Questions & answers</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Additional Resources -->
+        <div class="sitemap-category">
+            <div class="category-title">
+                <i class="fas fa-compass"></i> Additional Resources
+            </div>
+            <div class="page-list">
+                <a href="/cloud-native-blogs/roadmap.html" class="page-link">
+                    <i class="page-link-icon fas fa-road"></i>
+                    <div class="page-link-content">
+                        <h3>Enterprise Roadmap</h3>
+                        <p>Production-ready steps</p>
+                    </div>
+                </a>
+                <a href="/" class="page-link">
+                    <i class="page-link-icon fas fa-home"></i>
+                    <div class="page-link-content">
+                        <h3>Home</h3>
+                        <p>Main landing page</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p><i class="fas fa-heart"></i> Built with passion for the Cloud-Native community</p>
+        <p>&copy; 2025 Kubernetes Insights | <a href="https://github.com/ashish02510gh/cloud-native-blogs">GitHub</a> | <a href="https://www.linkedin.com/in/ashish02510/">LinkedIn</a></p>
+    </footer>
+</body>
+</html>

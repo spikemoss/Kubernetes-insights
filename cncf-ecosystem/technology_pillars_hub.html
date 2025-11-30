@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technology Pillars Hub | Kubernetes Insights</title>
+    <meta name="description" content="Navigate the 7 core technology pillars for cloud-native architecture: Compute, Storage, Network, Scalability, Observability, Security, and Reliability. Build informed decisions for each pillar.">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,96C1248,75,1344,53,1392,42.7L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.3;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        section h2 {
+            font-size: 1.875rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        section h2 i {
+            color: var(--accent);
+        }
+
+        section h3 {
+            font-size: 1.375rem;
+            color: var(--text-dark);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        p, li {
+            color: var(--text-gray);
+            font-size: 1rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.75rem;
+        }
+
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .pillar-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            border-left: 5px solid var(--accent);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pillar-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pillar-card.compute {
+            border-left-color: #3b82f6;
+        }
+
+        .pillar-card.storage {
+            border-left-color: #10b981;
+        }
+
+        .pillar-card.network {
+            border-left-color: #f59e0b;
+        }
+
+        .pillar-card.scalability {
+            border-left-color: #8b5cf6;
+        }
+
+        .pillar-card.observability {
+            border-left-color: #06b6d4;
+        }
+
+        .pillar-card.security {
+            border-left-color: #ef4444;
+        }
+
+        .pillar-card.reliability {
+            border-left-color: #14b8a6;
+        }
+
+        .pillar-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .compute .pillar-icon { color: #3b82f6; }
+        .storage .pillar-icon { color: #10b981; }
+        .network .pillar-icon { color: #f59e0b; }
+        .scalability .pillar-icon { color: #8b5cf6; }
+        .observability .pillar-icon { color: #06b6d4; }
+        .security .pillar-icon { color: #ef4444; }
+        .reliability .pillar-icon { color: #14b8a6; }
+
+        .pillar-card h3 {
+            margin-top: 0;
+            font-size: 1.375rem;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .pillar-card p {
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .pillar-card .key-questions {
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+
+        .pillar-card .key-questions p {
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .pillar-card .key-questions ul {
+            margin-left: 1rem;
+            margin-bottom: 0;
+        }
+
+        .pillar-card .key-questions li {
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .workflow-diagram {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .workflow-diagram h4 {
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .workflow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .workflow-step {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            background: var(--primary);
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--primary);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-content p {
+            margin: 0;
+            color: var(--text-gray);
+            font-size: 0.95rem;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid var(--warning);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .highlight-box p {
+            color: #78350f;
+            margin-bottom: 0;
+        }
+
+        .interdependencies {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .interdependencies h4 {
+            color: var(--primary);
+            margin-top: 0;
+            font-weight: 600;
+        }
+
+        .interdependencies p {
+            margin-bottom: 0.75rem;
+        }
+
+        .roi-box {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border-left: 4px solid var(--success);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .roi-box h4 {
+            color: var(--success);
+            margin-top: 0;
+            font-weight: 600;
+        }
+
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        footer p {
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        footer a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+
+            section {
+                padding: 1.5rem;
+            }
+
+            .pillars-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .workflow-steps {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="/cloud-native-blogs/index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+            <h1><i class="fas fa-exclamation-triangle"></i> Technology Pillars Hub</h1>
+            <p>Master 7 Core Pillars of Cloud-Native Architecture Design</p>
+        </div>
+    </header>
+    
+    <main>
+
+        <section>
+            <h2><i class="fas fa-compass"></i> Introduction: The 7 Pillars Framework</h2>
+            <p>
+                Building a cloud-native architecture requires making decisions across 7 interdependent technology pillars. 
+                Each pillar addresses critical aspects of your infrastructure, and choices in one pillar impact all others.
+            </p>
+            <p>
+                This hub provides a comprehensive overview of each pillar and helps you understand the decision frameworks 
+                you'll need to evaluate technology options. Rather than overwhelming you with tool choices, we focus on the 
+                strategic questions you must answer in each pillar.
+            </p>
+            <p>
+                <strong>Navigation:</strong> Click on any pillar below to explore detailed decision guides, technology options, 
+                and implementation patterns.
+            </p>
+        </section>
+
+        <section>
+            <h2><i class="fas fa-cubes"></i> The 7 Technology Pillars</h2>
+
+            <div class="pillars-grid">
+                <!-- Compute Pillar -->
+                <div class="pillar-card compute">
+                    <i class="fas fa-microchip pillar-icon"></i>
+                    <h3>1. Compute</h3>
+                    <p>
+                        Choose how to execute your applications: Kubernetes clusters, serverless functions, edge computing, 
+                        or virtual machines.
+                    </p>
+                    <div class="key-questions">
+                        <p><strong>Key Decisions:</strong></p>
+                        <ul>
+                            <li>Kubernetes vs Serverless vs Edge?</li>
+                            <li>Managed vs self-hosted?</li>
+                            <li>Multi-cloud strategy?</li>
+                            <li>Cost vs control trade-offs?</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Storage Pillar -->
+                <div class="pillar-card storage">
+                    <i class="fas fa-database pillar-icon"></i>
+                    <h3>2. Storage</h3>
+                    <p>
+                        Design data persistence: Block storage, file systems, object storage, databases, and backup strategies.
+                    </p>
+                    <div class="key-questions">
+                        <p><strong>Key Decisions:</strong></p>
+                        <ul>
+                            <li>Persistence model (local, network, cloud)?</li>
+                            <li>Database type (SQL, NoSQL, specialized)?</li>
+                            <li>Backup & DR strategy?</li>
+                            <li>Data residency & compliance?</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Network Pillar -->
+                <div class="pillar-card network">
+                    <i class="fas fa-network-wired pillar-icon"></i>
+                    <h3>3. Network</h3>
+                    <p>
+                        Manage communication: CNI plugins, ingress controllers, service mesh, load balancing, and security policies.
+                    </p>
+                    <div class="key-questions">
+                        <p><strong>Key Decisions:</strong></p>
+                        <ul>
+                            <li>Network topology & topology?</li>
+                            <li>Ingress & load balancing?</li>
+                            <li>Service mesh for observability?</li>
+                            <li>Zero-trust security?</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Scalability Pillar -->
+                <div class="pillar-card scalability">
+                    <i class="fas fa-arrow-up-right pillar-icon"></i>
+                    <h3>4. Scalability</h3>
+                    <p>
+                        Handle variable demand: Horizontal scaling, vertical scaling, cluster autoscaling, and cost optimization.
+                    </p>
+                    <div class="key-questions">
+                        <p><strong>Key Decisions:</strong></p>
+                        <ul>
+                            <li>HPA vs VPA vs cluster scaling?</li>
+                            <li>Metric-based vs schedule-based?</li>
+                            <li>Cost vs performance tuning?</li>
+                            <li>Multi-region scaling?</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Observability Pillar -->
+                <div class="pillar-card observability">
+                    <i class="fas fa-chart-line pillar-icon"></i>
+                    <h3>5. Observability</h3>
+                    <p>
+                        Monitor & understand systems: Metrics, logging, tracing, dashboards, and alerting strategies.
+                    </p>
+                    <div class="key-questions">
+                        <p><strong>Key Decisions:</strong></p>
+                        <ul>
+                            <li>Metrics vs logs vs traces?</li>
+                            <li>Managed vs self-hosted stack?</li>
+                            <li>Data retention & cost?</li>
+                            <li>Alerting & incident response?</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Security Pillar -->
+                <div class="pillar-card security">
+                    <i class="fas fa-shield-alt pillar-icon"></i>
+                    <h3>6. Security</h3>
+                    <p>
+                        Protect systems: RBAC, network policies, secret management, compliance, and threat detection.
+                    </p>
+                    <div class="key-questions">
+                        <p><strong>Key Decisions:</strong></p>
+                        <ul>
+                            <li>Authentication & authorization?</li>
+                            <li>Secrets management strategy?</li>
+                            <li>Compliance frameworks?</li>
+                            <li>Network & runtime security?</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Reliability Pillar -->
+                <div class="pillar-card reliability">
+                    <i class="fas fa-heartbeat pillar-icon"></i>
+                    <h3>7. Reliability</h3>
+                    <p>
+                        Ensure availability: High availability, disaster recovery, SLO/SLI/SLA definition, and resilience patterns.
+                    </p>
+                    <div class="key-questions">
+                        <p><strong>Key Decisions:</strong></p>
+                        <ul>
+                            <li>RTO/RPO targets?</li>
+                            <li>HA architecture pattern?</li>
+                            <li>SLO/SLI/SLA definition?</li>
+                            <li>Failure scenarios & testing?</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2><i class="fas fa-object-group"></i> Technology Selection Workflow</h2>
+
+            <div class="workflow-diagram">
+                <h4><i class="fas fa-list-check"></i> 5-Step Decision Framework</h4>
+                
+                <div class="workflow-steps">
+                    <div class="workflow-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Assess Requirements</strong>
+                            <p>
+                                Understand workload characteristics: performance needs, compliance requirements, scale, 
+                                and cost constraints.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="workflow-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>Evaluate Cloud Model</strong>
+                            <p>
+                                Decide public/private/hybrid based on strategy. This impacts all 7 pillar choices 
+                                (tools availability, compliance options, cost).
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="workflow-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong>Select Per-Pillar Technologies</strong>
+                            <p>
+                                Choose specific technologies for each pillar. Start with compute (Kubernetes?), 
+                                then storage, network, etc.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="workflow-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <strong>Validate Interdependencies</strong>
+                            <p>
+                                Ensure pillar choices work together. Network choice impacts scalability. 
+                                Security impacts operations. Etc.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="workflow-step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <strong>Calculate Total Cost & ROI</strong>
+                            <p>
+                                Sum costs across all pillars. Compare alternatives. Validate against budget. 
+                                Consider 3-5 year TCO.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <p>
+                    <strong>💡 Pro Tip:</strong> Don't treat pillars in isolation. Changes to compute choice 
+                    (Kubernetes vs Serverless) impact storage, network, scalability, and security choices. 
+                    Use an iterative approach: choose compute, then evaluate impacts on other pillars.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2><i class="fas fa-exchange-alt"></i> Pillar Interdependencies</h2>
+
+            <p>
+                Understanding how pillars depend on each other is critical for making coherent technology choices:
+            </p>
+
+            <div class="interdependencies">
+                <h4><i class="fas fa-share-nodes"></i> Key Interdependencies</h4>
+
+                <p>
+                    <strong>Compute → Storage:</strong> 
+                    If choosing Kubernetes, you need StatefulSets with persistent storage. 
+                    Serverless doesn't need persistent storage (state is ephemeral).
+                </p>
+
+                <p>
+                    <strong>Compute → Network:</strong> 
+                    Kubernetes needs CNI plugin + ingress controller. Serverless needs API gateway + load balancing. 
+                    Choices are tightly coupled.
+                </p>
+
+                <p>
+                    <strong>Scalability → Cost:</strong> 
+                    Horizontal scaling (HPA) may increase costs but reduces per-request latency. 
+                    Need to balance performance vs. cost.
+                </p>
+
+                <p>
+                    <strong>Security → Observability:</strong> 
+                    More security policies (network policies, RBAC) require more observability 
+                    to understand what's being blocked/allowed.
+                </p>
+
+                <p>
+                    <strong>Reliability → Observability:</strong> 
+                    High availability architectures require sophisticated monitoring to detect & respond 
+                    to failures quickly.
+                </p>
+
+                <p>
+                    <strong>Network → Security:</strong> 
+                    Service mesh (network layer) can enforce security policies. 
+                    Network policies are foundational for zero-trust architecture.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2><i class="fas fa-book"></i> Pillar Deep-Dive Guides</h2>
+
+            <p>
+                Each pillar has a dedicated deep-dive guide that covers:
+            </p>
+            <ul>
+                <li>Strategic decision questions</li>
+                <li>Technology options & comparison</li>
+                <li>Public vs private cloud considerations</li>
+                <li>Cost analysis per option</li>
+                <li>Real-world implementation patterns</li>
+                <li>Common pitfalls & best practices</li>
+            </ul>
+
+            <h3>Access Pillar Guides:</h3>
+            <ul>
+                <li><a href="/cloud-native-blogs/compute_options.html" style="color: var(--accent); font-weight: 600;">
+                    1. Compute Options</a> - Kubernetes, Serverless, Edge, VMs</li>
+                <li><a href="/cloud-native-blogs/storage_solutions.html" style="color: var(--accent); font-weight: 600;">
+                    2. Storage Solutions</a> - Block, File, Object, Database, Backup</li>
+                <li><a href="/cloud-native-blogs/network_architecture.html" style="color: var(--accent); font-weight: 600;">
+                    3. Network Architecture</a> - CNI, Ingress, Service Mesh, Security</li>
+                <li><a href="/cloud-native-blogs/scalability_patterns.html" style="color: var(--accent); font-weight: 600;">
+                    4. Scalability Patterns</a> - HPA, VPA, Cost Optimization</li>
+                <li><a href="/cloud-native-blogs/observability_stack.html" style="color: var(--accent); font-weight: 600;">
+                    5. Observability Stack</a> - Metrics, Logs, Traces, Dashboards</li>
+                <li><a href="/cloud-native-blogs/security_architecture.html" style="color: var(--accent); font-weight: 600;">
+                    6. Security Architecture</a> - RBAC, Policies, Compliance</li>
+                <li><a href="/cloud-native-blogs/reliability_patterns.html" style="color: var(--accent); font-weight: 600;">
+                    7. Reliability Patterns</a> - HA, DR, SLO/SLI/SLA</li>
+            </ul>
+
+            <div class="roi-box">
+                <h4><i class="fas fa-lightbulb"></i> ROI Calculator Framework</h4>
+                <p>
+                    Each pillar guide includes a framework for evaluating return on investment:
+                </p>
+                <ul>
+                    <li><strong>Cost Implications:</strong> Total cost of ownership per option</li>
+                    <li><strong>Performance Benefits:</strong> Latency, throughput, scalability gains</li>
+                    <li><strong>Operational Overhead:</strong> Team size, complexity, training needs</li>
+                    <li><strong>Risk Assessment:</strong> Technical debt, vendor lock-in, compliance gaps</li>
+                    <li><strong>Time to Value:</strong> Implementation timeline, quick wins</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2><i class="fas fa-tasks"></i> Assessment Checklist: Are You Ready?</h2>
+
+            <h3>Before Starting Technology Selection</h3>
+            <ul>
+                <li><strong>Cloud Model Decided:</strong> Have you chosen public/private/hybrid?</li>
+                <li><strong>Budget Defined:</strong> Do you have total budget across all 7 pillars?</li>
+                <li><strong>Team Expertise:</strong> What skills does your team have?</li>
+                <li><strong>Compliance Known:</strong> What regulations apply to your data?</li>
+                <li><strong>Performance Targets:</strong> What are your SLO/SLI targets?</li>
+                <li><strong>Growth Projections:</strong> What's your 3-year scaling plan?</li>
+            </ul>
+
+            <h3>During Technology Selection</h3>
+            <ul>
+                <li><strong>Document Assumptions:</strong> Why did you choose specific technologies?</li>
+                <li><strong>Track Trade-offs:</strong> What did you give up for each choice?</li>
+                <li><strong>Plan Migrations:</strong> How will you migrate/upgrade over time?</li>
+                <li><strong>Build for Change:</strong> Avoid lock-in, use standards where possible</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2><i class="fas fa-link"></i> Related Resources</h2>
+            <ul>
+                <li><a href="/cloud-native-blogs/cloud_strategy_hub.html" style="color: var(--accent);">Cloud Strategy Hub</a> - 
+                    Decide on public/private/hybrid before pillar selection</li>
+                <li><a href="/cloud-native-blogs/cncfscope.html" style="color: var(--accent);">CNCF Tools Scope</a> - 
+                    Explore open-source options per pillar</li>
+                <li><a href="/cloud-native-blogs/cost_optimization.html" style="color: var(--accent);">Cost Optimization</a> - 
+                    Reduce costs across all pillars</li>
+                <li><a href="/cloud-native-blogs/enterprise_scenarios.html" style="color: var(--accent);">Enterprise Scenarios</a> - 
+                    See real technology choices from actual enterprises</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-heart"></i> Built with passion for the Cloud-Native community</p>
+        <p>&copy; 2025 Kubernetes Insights by Sharmaji Cloud Wale | 
+            <a href="https://github.com/ashish02510gh" target="_blank"><i class="fab fa-github"></i> GitHub</a> | 
+            <a href="https://www.linkedin.com/in/ashish02510/" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+        </p>
+    </footer>
+</body>
+</html>

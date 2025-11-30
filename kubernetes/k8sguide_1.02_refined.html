@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes HA Cluster Setup Guide | Kubeadm Installation</title>
+    <meta name="description" content="Complete guide to setting up a production-ready high-availability Kubernetes cluster using kubeadm">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+            color: var(--text-dark);
+            line-height: 1.7;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem 3rem;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: var(--bg-card);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .info-box.warning {
+            border-left-color: var(--warning);
+        }
+
+        .info-box.success {
+            border-left-color: var(--success);
+        }
+
+        .info-box h3 {
+            color: var(--primary);
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Section */
+        section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        section h2 {
+            color: var(--primary);
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        section h3 {
+            color: var(--text-dark);
+            font-size: 1.375rem;
+            margin: 1.5rem 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: var(--text-gray);
+        }
+
+        li strong {
+            color: var(--text-dark);
+        }
+
+        /* Code Blocks */
+        pre {
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+
+        code {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+        }
+
+        .inline-code {
+            background: #f1f5f9;
+            color: var(--primary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody tr:hover {
+            background: var(--bg-light);
+        }
+
+        /* Steps */
+        .step {
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            margin-right: 0.75rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            main {
+                padding: 0 1rem 2rem;
+            }
+
+            section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="/cloud-native-blogs/index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+            <h1><i class="fas fa-dharmachakra"></i> Kubernetes HA Cluster Setup with Kubeadm</h1>
+            <p>Production-ready high-availability Kubernetes cluster deployment guide</p>
+        </div>
+    </header>
+
+    <main>
+        <div class="info-box">
+            <h3><i class="fas fa-info-circle"></i> About This Guide</h3>
+            <p>This comprehensive guide walks you through setting up a production-ready, highly available Kubernetes cluster using <strong>kubeadm</strong>. You'll learn to deploy a multi-master cluster with external load balancing, ensuring zero single points of failure.</p>
+        </div>
+
+        <!-- Prerequisites -->
+        <section>
+            <h2><i class="fas fa-clipboard-check"></i> Prerequisites</h2>
+
+            <div class="info-box warning">
+                <h3><i class="fas fa-exclamation-triangle"></i> Before You Begin</h3>
+                <p>Ensure you have the following ready before starting the installation process.</p>
+            </div>
+
+            <h3><i class="fas fa-server"></i> Infrastructure Requirements</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Quantity</th>
+                        <th>Specifications</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Master Nodes</strong></td>
+                        <td>3 (odd number recommended)</td>
+                        <td>2 CPU, 4GB RAM, 50GB disk</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Worker Nodes</strong></td>
+                        <td>3+ (based on workload)</td>
+                        <td>2 CPU, 4GB RAM, 50GB disk</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Load Balancers</strong></td>
+                        <td>2 (for HA)</td>
+                        <td>1 CPU, 2GB RAM, 20GB disk</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3><i class="fas fa-list-check"></i> System Requirements</h3>
+            <ul>
+                <li><strong>Operating System:</strong> Ubuntu 20.04/22.04 LTS or RHEL/CentOS 8+</li>
+                <li><strong>Network:</strong> Full connectivity between all nodes (private or public)</li>
+                <li><strong>Firewall:</strong> Required ports open (see network section)</li>
+                <li><strong>Privileges:</strong> Root or sudo access on all nodes</li>
+                <li><strong>Unique Hostnames:</strong> Each node must have a unique hostname</li>
+                <li><strong>MAC & Product UUID:</strong> Must be unique for each node</li>
+            </ul>
+
+            <h3><i class="fas fa-network-wired"></i> Required Ports</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Node Type</th>
+                        <th>Port Range</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Master</td>
+                        <td>6443</td>
+                        <td>Kubernetes API server</td>
+                    </tr>
+                    <tr>
+                        <td>Master</td>
+                        <td>2379-2380</td>
+                        <td>etcd server client API</td>
+                    </tr>
+                    <tr>
+                        <td>Master</td>
+                        <td>10250-10252</td>
+                        <td>Kubelet, kube-scheduler, kube-controller-manager</td>
+                    </tr>
+                    <tr>
+                        <td>Worker</td>
+                        <td>10250</td>
+                        <td>Kubelet API</td>
+                    </tr>
+                    <tr>
+                        <td>Worker</td>
+                        <td>30000-32767</td>
+                        <td>NodePort Services</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3><i class="fas fa-box"></i> Software Versions (Latest 2025)</h3>
+            <ul>
+                <li><strong>Kubernetes:</strong> v1.29+ (kubeadm, kubelet, kubectl)</li>
+                <li><strong>Container Runtime:</strong> containerd v1.7+ or CRI-O v1.29+</li>
+                <li><strong>CNI Plugin:</strong> Calico, Flannel, or Cilium (latest)</li>
+                <li><strong>Load Balancer:</strong> HAProxy v2.8+ or NGINX</li>
+            </ul>
+        </section>
+
+        <!-- Cluster Architecture -->
+        <section>
+            <h2><i class="fas fa-sitemap"></i> High Availability Architecture</h2>
+            <p>Our HA cluster consists of 8 nodes configured for production workloads:</p>
+
+            <div class="step">
+                <h3><i class="fas fa-layer-group"></i> Cluster Topology</h3>
+                <ul>
+                    <li><strong>3 Master Nodes:</strong> master1, master2, master3 (stacked etcd)</li>
+                    <li><strong>3 Worker Nodes:</strong> worker1, worker2, worker3</li>
+                    <li><strong>2 Load Balancers:</strong> loadbalancer1, loadbalancer2 (HAProxy)</li>
+                </ul>
+            </div>
+
+            <div class="info-box success">
+                <h3><i class="fas fa-shield-alt"></i> High Availability Benefits</h3>
+                <p>This configuration provides <strong>99.9% uptime</strong> by eliminating single points of failure. If any master node fails, the remaining nodes maintain cluster operations seamlessly.</p>
+            </div>
+        </section>
+
+        <!-- Step-by-Step Installation -->
+        <section>
+            <h2><i class="fas fa-cogs"></i> Installation Steps</h2>
+
+            <!-- Step 1: Load Balancer Setup -->
+            <div class="step">
+                <h3><span class="step-number">1</span> Configure HAProxy Load Balancers</h3>
+                <p>Set up HAProxy on both load balancer nodes to distribute API server traffic:</p>
+
+                <h4>Install HAProxy:</h4>
+                <pre><code>sudo apt update && sudo apt install -y haproxy</code></pre>
+
+                <h4>Configure HAProxy (<code>/etc/haproxy/haproxy.cfg</code>):</h4>
+                <pre><code>frontend kubernetes_frontend
+    bind *:6443
+    mode tcp
+    option tcplog
+    default_backend kubernetes_backend
+
+backend kubernetes_backend
+    mode tcp
+    option tcp-check
+    balance roundrobin
+    server master1 192.168.1.101:6443 check fall 3 rise 2
+    server master2 192.168.1.102:6443 check fall 3 rise 2
+    server master3 192.168.1.103:6443 check fall 3 rise 2</code></pre>
+
+                <h4>Restart HAProxy:</h4>
+                <pre><code>sudo systemctl restart haproxy
+sudo systemctl enable haproxy
+sudo systemctl status haproxy</code></pre>
+            </div>
+
+            <!-- Step 2: Common Setup -->
+            <div class="step">
+                <h3><span class="step-number">2</span> Prepare All Nodes (Masters & Workers)</h3>
+                <p>Run these commands on <strong>all master and worker nodes</strong>:</p>
+
+                <h4>Disable Swap:</h4>
+                <pre><code>sudo swapoff -a
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab</code></pre>
+
+                <h4>Load Kernel Modules:</h4>
+                <pre><code>cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+
+sudo modprobe overlay
+sudo modprobe br_netfilter</code></pre>
+
+                <h4>Configure Sysctl:</h4>
+                <pre><code>cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
+
+sudo sysctl --system</code></pre>
+
+                <h4>Install Container Runtime (containerd):</h4>
+                <pre><code>sudo apt update
+sudo apt install -y containerd
+
+sudo mkdir -p /etc/containerd
+containerd config default | sudo tee /etc/containerd/config.toml
+
+# Enable SystemdCgroup
+sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
+
+sudo systemctl restart containerd
+sudo systemctl enable containerd</code></pre>
+
+                <h4>Install Kubernetes Components:</h4>
+                <pre><code>sudo apt update
+sudo apt install -y apt-transport-https ca-certificates curl
+
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+sudo apt update
+sudo apt install -y kubelet kubeadm kubectl
+sudo apt-mark hold kubelet kubeadm kubectl</code></pre>
+            </div>
+
+            <!-- Step 3: Initialize First Master -->
+            <div class="step">
+                <h3><span class="step-number">3</span> Initialize the First Control Plane</h3>
+                <p>On <strong>master1</strong> only:</p>
+
+                <pre><code>sudo kubeadm init \
+  --control-plane-endpoint="LOAD_BALANCER_IP:6443" \
+  --upload-certs \
+  --pod-network-cidr=10.244.0.0/16</code></pre>
+
+                <p>Save the output! You'll need the join commands for:</p>
+                <ul>
+                    <li>Additional control plane nodes</li>
+                    <li>Worker nodes</li>
+                </ul>
+
+                <h4>Configure kubectl:</h4>
+                <pre><code>mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config</code></pre>
+            </div>
+
+            <!-- Step 4: Install CNI -->
+            <div class="step">
+                <h3><span class="step-number">4</span> Deploy Pod Network (Calico)</h3>
+                <p>Install Calico CNI on <strong>master1</strong>:</p>
+
+                <pre><code>kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/calico.yaml</code></pre>
+
+                <p>Verify pod network:</p>
+                <pre><code>kubectl get pods -n kube-system</code></pre>
+            </div>
+
+            <!-- Step 5: Join Additional Masters -->
+            <div class="step">
+                <h3><span class="step-number">5</span> Join Additional Master Nodes</h3>
+                <p>On <strong>master2</strong> and <strong>master3</strong>, run the control plane join command from Step 3:</p>
+
+                <pre><code>sudo kubeadm join LOAD_BALANCER_IP:6443 \
+  --token <token> \
+  --discovery-token-ca-cert-hash sha256:<hash> \
+  --control-plane --certificate-key <key></code></pre>
+            </div>
+
+            <!-- Step 6: Join Workers -->
+            <div class="step">
+                <h3><span class="step-number">6</span> Join Worker Nodes</h3>
+                <p>On each worker node, run the worker join command from Step 3:</p>
+
+                <pre><code>sudo kubeadm join LOAD_BALANCER_IP:6443 \
+  --token <token> \
+  --discovery-token-ca-cert-hash sha256:<hash></code></pre>
+            </div>
+
+            <!-- Step 7: Verify -->
+            <div class="step">
+                <h3><span class="step-number">7</span> Verify Cluster Health</h3>
+                <p>Check all nodes are ready:</p>
+
+                <pre><code>kubectl get nodes -o wide</code></pre>
+
+                <p>Verify component status:</p>
+                <pre><code>kubectl get pods -n kube-system
+kubectl cluster-info</code></pre>
+
+                <div class="info-box success">
+                    <h3><i class="fas fa-check-circle"></i> Cluster Ready!</h3>
+                    <p>Your HA Kubernetes cluster is now operational and ready for production workloads!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Troubleshooting -->
+        <section>
+            <h2><i class="fas fa-wrench"></i> Troubleshooting Tips</h2>
+            <ul>
+                <li><strong>Token expired:</strong> Generate a new token with <code class="inline-code">kubeadm token create --print-join-command</code></li>
+                <li><strong>Pod network issues:</strong> Verify CNI plugin is running: <code class="inline-code">kubectl get pods -n kube-system</code></li>
+                <li><strong>Node not ready:</strong> Check kubelet logs: <code class="inline-code">sudo journalctl -u kubelet -f</code></li>
+                <li><strong>HAProxy not forwarding:</strong> Test connectivity: <code class="inline-code">nc -zv LOAD_BALANCER_IP 6443</code></li>
+            </ul>
+        </section>
+
+        <!-- Next Steps -->
+        <section>
+            <h2><i class="fas fa-forward"></i> Next Steps</h2>
+            <ul>
+                <li>Configure <a href="rbac_setup.html">RBAC and access controls</a></li>
+                <li>Set up <a href="k8s_security.html">cluster security policies</a></li>
+                <li>Deploy monitoring with Prometheus & Grafana</li>
+                <li>Configure persistent storage solutions</li>
+                <li>Implement backup strategies for etcd</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p><i class="fas fa-heart"></i> Created by Sharmaji Cloud Wale | <a href="https://github.com/ashish02510gh" target="_blank"><i class="fab fa-github"></i> GitHub</a></p>
+        <p>&copy; 2025 Kubernetes Insights</p>
+    </footer>
+</body>
+</html>
+

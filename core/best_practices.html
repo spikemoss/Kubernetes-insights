@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Best Practices | Optimization & Industry Standards</title>
+    <meta name="description" content="Comprehensive guide to Kubernetes best practices including naming conventions, resource management, security, and optimization techniques">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,96C1248,75,1344,53,1392,42.7L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.3;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .intro-section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--warning);
+        }
+
+        .intro-section h2 {
+            font-size: 1.875rem;
+            color: var(--warning);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .nav-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--warning);
+        }
+
+        .nav-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .nav-card h3 {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .nav-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .nav-card li {
+            padding: 0.5rem 0;
+            color: var(--text-gray);
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+        }
+
+        .nav-card li i {
+            color: var(--success);
+            margin-top: 0.25rem;
+            min-width: 20px;
+        }
+
+        .code-block {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 1rem 0;
+        }
+
+        .best-practice-box {
+            background: linear-gradient(135deg, #dcfce7 0%, #ffffff 100%);
+            border-left: 4px solid var(--success);
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .best-practice-box h3 {
+            color: var(--success);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .best-practice-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .best-practice-box li {
+            padding: 0.75rem 0;
+            color: var(--text-gray);
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+        }
+
+        .best-practice-box li i {
+            color: var(--success);
+            margin-top: 0.25rem;
+            min-width: 20px;
+        }
+
+        .anti-pattern {
+            background: linear-gradient(135deg, #fee2e2 0%, #ffffff 100%);
+            border-left: 4px solid var(--danger);
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .anti-pattern h3 {
+            color: var(--danger);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        footer a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <a href="/cloud-native-blogs/index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+            <h1><i class="fas fa-exclamation-triangle"></i> Kubernetes Best Practices</h1>
+            <p>Industry Standards, Naming Conventions, Resource Management & Optimization</p>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main>
+        <section class="intro-section">
+            <h2><i class="fas fa-lightbulb"></i> Why Best Practices Matter</h2>
+            <p>
+                Following Kubernetes best practices ensures your deployments are secure, scalable, maintainable, and cost-effective. 
+                This comprehensive guide covers industry-standard practices that will help you build production-ready applications.
+            </p>
+        </section>
+
+        <!-- Naming Conventions -->
+        <div class="section-header">
+            <h2>Naming Conventions & Labeling</h2>
+            <p>Standardize naming across your cluster for better organization</p>
+        </div>
+
+        <div class="nav-grid">
+            <div class="nav-card">
+                <h3><i class="fas fa-tag" style="color: var(--warning);"></i> Resource Naming</h3>
+                <ul>
+                    <li><i class="fas fa-check"></i> Use lowercase alphanumeric and hyphens</li>
+                    <li><i class="fas fa-check"></i> Start and end with alphanumeric character</li>
+                    <li><i class="fas fa-check"></i> Max 63 characters for most resources</li>
+                    <li><i class="fas fa-check"></i> Example: <code style="background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 4px;">web-app-frontend-prod</code></li>
+                    <li><i class="fas fa-check"></i> Avoid timestamps in resource names</li>
+                </ul>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-labels" style="color: var(--warning);"></i> Labels & Annotations</h3>
+                <div class="code-block" style="font-size: 0.85rem;">
+metadata:
+  labels:
+    app: web-server
+    version: v1.2.0
+    environment: prod
+    team: backend
+  annotations:
+    description: "Main web server"
+    managed-by: "terraform"</div>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-object-group" style="color: var(--warning);"></i> Recommended Labels</h3>
+                <ul>
+                    <li><i class="fas fa-check"></i> <code style="background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 4px;">app</code> - Application name</li>
+                    <li><i class="fas fa-check"></i> <code style="background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 4px;">version</code> - App version</li>
+                    <li><i class="fas fa-check"></i> <code style="background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 4px;">environment</code> - dev/staging/prod</li>
+                    <li><i class="fas fa-check"></i> <code style="background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 4px;">team</code> - Team responsible</li>
+                    <li><i class="fas fa-check"></i> <code style="background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 4px;">cost-center</code> - Billing</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Resource Management -->
+        <div class="section-header">
+            <h2>Resource Management & Limits</h2>
+            <p>Properly define CPU and memory requests and limits</p>
+        </div>
+
+        <div class="nav-card intro-section">
+            <h3><i class="fas fa-chart-bar" style="color: var(--warning);"></i> CPU & Memory Requests & Limits</h3>
+            
+            <div class="code-block">
+spec:
+  containers:
+  - name: my-app
+    image: myapp:v1.0
+    resources:
+      requests:
+        cpu: "100m"          # 0.1 CPU
+        memory: "128Mi"      # 128 Megabytes
+      limits:
+        cpu: "500m"          # 0.5 CPU
+        memory: "512Mi"      # 512 Megabytes</div>
+
+            <div class="best-practice-box">
+                <h3><i class="fas fa-check-circle"></i> Guidelines</h3>
+                <ul>
+                    <li><i class="fas fa-check"></i> Always set requests for scheduler optimization</li>
+                    <li><i class="fas fa-check"></i> Set limits to prevent resource hogging</li>
+                    <li><i class="fas fa-check"></i> Limits should be 2-4x higher than requests</li>
+                    <li><i class="fas fa-check"></i> Monitor actual usage to fine-tune values</li>
+                    <li><i class="fas fa-check"></i> Use ResourceQuotas at namespace level</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Pod Security & Health Checks -->
+        <div class="section-header">
+            <h2>Pod Security & Health Checks</h2>
+            <p>Ensure containers are secure and properly monitored</p>
+        </div>
+
+        <div class="nav-grid">
+            <div class="nav-card">
+                <h3><i class="fas fa-shield-alt" style="color: var(--warning);"></i> Security Context</h3>
+                <div class="code-block" style="font-size: 0.85rem;">
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL</div>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-heartbeat" style="color: var(--warning);"></i> Liveness Probe</h3>
+                <div class="code-block" style="font-size: 0.85rem;">
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3</div>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-check-circle" style="color: var(--warning);"></i> Readiness Probe</h3>
+                <div class="code-block" style="font-size: 0.85rem;">
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 2</div>
+            </div>
+        </div>
+
+        <!-- Deployment Patterns -->
+        <div class="section-header">
+            <h2>Deployment Patterns & Strategies</h2>
+            <p>Best practices for deploying applications</p>
+        </div>
+
+        <div class="nav-grid">
+            <div class="nav-card">
+                <h3><i class="fas fa-arrow-circle-right" style="color: var(--warning);"></i> Rolling Updates</h3>
+                <ul>
+                    <li><i class="fas fa-check"></i> Default strategy - zero downtime</li>
+                    <li><i class="fas fa-check"></i> Gradual pod replacement</li>
+                    <li><i class="fas fa-check"></i> Can rollback if issues occur</li>
+                    <li><i class="fas fa-check"></i> Recommended for most cases</li>
+                </ul>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-expand" style="color: var(--warning);"></i> Blue-Green Deployment</h3>
+                <ul>
+                    <li><i class="fas fa-check"></i> Two identical environments</li>
+                    <li><i class="fas fa-check"></i> Instant switch with zero downtime</li>
+                    <li><i class="fas fa-check"></i> Requires double resources</li>
+                    <li><i class="fas fa-check"></i> Easy rollback mechanism</li>
+                </ul>
+            </div>
+
+            <div class="nav-card">
+                <h3><i class="fas fa-traffic-light" style="color: var(--warning);"></i> Canary Deployment</h3>
+                <ul>
+                    <li><i class="fas fa-check"></i> Route small traffic percentage</li>
+                    <li><i class="fas fa-check"></i> Monitor metrics before full rollout</li>
+                    <li><i class="fas fa-check"></i> Catch issues early</li>
+                    <li><i class="fas fa-check"></i> Requires service mesh (Istio/Linkerd)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Data Management -->
+        <div class="section-header">
+            <h2>Data & State Management</h2>
+            <p>Handle persistent data correctly</p>
+        </div>
+
+        <div class="best-practice-box">
+            <h3><i class="fas fa-database"></i> Storage Best Practices</h3>
+            <ul>
+                <li><i class="fas fa-check"></i> Use PersistentVolumes for data that must survive pod restarts</li>
+                <li><i class="fas fa-check"></i> Choose appropriate StorageClass (SSD for databases, HDD for archives)</li>
+                <li><i class="fas fa-check"></i> Implement automated backups and disaster recovery</li>
+                <li><i class="fas fa-check"></i> Use StatefulSets for stateful applications (databases, caches)</li>
+                <li><i class="fas fa-check"></i> Configure retention policies and cleanup schedules</li>
+                <li><i class="fas fa-check"></i> Monitor storage usage and capacity planning</li>
+            </ul>
+        </div>
+
+        <!-- Anti-Patterns to Avoid -->
+        <div class="section-header">
+            <h2>Anti-Patterns to Avoid</h2>
+            <p>Common mistakes that lead to problems</p>
+        </div>
+
+        <div class="anti-pattern">
+            <h3><i class="fas fa-times-circle"></i> Using Latest Image Tag</h3>
+            <p style="margin-bottom: 1rem;">❌ <strong>Bad:</strong> <code style="background: #1e1e1e; color: #d4d4d4; padding: 0.2rem 0.4rem; border-radius: 4px;">image: myapp:latest</code></p>
+            <p>✅ <strong>Good:</strong> <code style="background: #1e1e1e; color: #d4d4d4; padding: 0.2rem 0.4rem; border-radius: 4px;">image: myapp:v1.2.3-sha256</code></p>
+            <p><strong>Why:</strong> Latest tag is mutable and can change unexpectedly, breaking deployments.</p>
+        </div>
+
+        <div class="anti-pattern">
+            <h3><i class="fas fa-times-circle"></i> Running as Root</h3>
+            <p style="margin-bottom: 1rem;">❌ <strong>Bad:</strong> No security context defined (runs as root by default)</p>
+            <p>✅ <strong>Good:</strong> Set <code style="background: #1e1e1e; color: #d4d4d4; padding: 0.2rem 0.4rem; border-radius: 4px;">runAsNonRoot: true</code> and <code style="background: #1e1e1e; color: #d4d4d4; padding: 0.2rem 0.4rem; border-radius: 4px;">runAsUser: 1000</code></p>
+            <p><strong>Why:</strong> Root access increases security risk if container is compromised.</p>
+        </div>
+
+        <div class="anti-pattern">
+            <h3><i class="fas fa-times-circle"></i> No Resource Limits</h3>
+            <p style="margin-bottom: 1rem;">❌ <strong>Bad:</strong> No requests or limits specified</p>
+            <p>✅ <strong>Good:</strong> Always define CPU and memory requests and limits</p>
+            <p><strong>Why:</strong> Without limits, a single pod can consume all cluster resources.</p>
+        </div>
+
+        <div class="anti-pattern">
+            <h3><i class="fas fa-times-circle"></i> Secrets in ConfigMaps</h3>
+            <p style="margin-bottom: 1rem;">❌ <strong>Bad:</strong> Storing passwords in ConfigMaps</p>
+            <p>✅ <strong>Good:</strong> Use Secrets and enable encryption at rest</p>
+            <p><strong>Why:</strong> ConfigMaps are not encrypted and can leak sensitive data.</p>
+        </div>
+
+        <!-- Quick Reference -->
+        <div class="best-practice-box" style="margin-top: 3rem;">
+            <h3><i class="fas fa-book"></i> Quick Reference Checklist</h3>
+            <ul>
+                <li><i class="fas fa-check"></i> Use lowercase names with hyphens</li>
+                <li><i class="fas fa-check"></i> Always set resource requests and limits</li>
+                <li><i class="fas fa-check"></i> Implement liveness and readiness probes</li>
+                <li><i class="fas fa-check"></i> Use specific image tags (not latest)</li>
+                <li><i class="fas fa-check"></i> Run as non-root user</li>
+                <li><i class="fas fa-check"></i> Use Secrets for sensitive data</li>
+                <li><i class="fas fa-check"></i> Label all resources consistently</li>
+                <li><i class="fas fa-check"></i> Use namespaces for isolation</li>
+                <li><i class="fas fa-check"></i> Enable pod security policies</li>
+                <li><i class="fas fa-check"></i> Implement network policies</li>
+                <li><i class="fas fa-check"></i> Use RBAC for access control</li>
+                <li><i class="fas fa-check"></i> Monitor and log all activity</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p><i class="fas fa-check-double"></i> Follow these practices for production-ready clusters!</p>
+        <p>&copy; 2025 Kubernetes Insights by Sharmaji Cloud Wale | 
+            <a href="https://github.com/ashish02510gh" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+        </p>
+    </footer>
+</body>
+</html>
+
